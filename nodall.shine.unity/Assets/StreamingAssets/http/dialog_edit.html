@@ -1,0 +1,28 @@
+  <ons-dialog cancelable>
+
+    <ons-toolbar inline>
+      <div class="center">
+        Edit {{dialogEdit.property}}
+      </div>
+    </ons-toolbar>
+
+    <div style="padding: 20px">
+        <input placeholder="New Surface" id="editname" type="text" class="text-input" style="width:150px;height:42px" ng-model="dialogEdit.name" required autocomplete="off">
+        <ons-button modifier="outline" ng-disabled="dialogEdit.isUpDisabled" ng-click="dialogEdit.upButton()"><ons-icon icon="ion-arrow-up-c"></ons-icon></ons-button>
+        <ons-button modifier="outline" ng-disabled="dialogEdit.isDownDisabled" ng-click=dialogEdit.downButton()><ons-icon icon="ion-arrow-down-c"></ons-icon></ons-button>
+    </div>
+
+
+    <ons-row style="padding:20px">
+
+      <ons-col>
+        <ons-button modifier="large" ng-click="dialogEdit.accept()" style="margin-top:10px">OK</ons-button>
+      </ons-col>
+      <ons-col width="20px"></ons-col>
+      <ons-col>
+        <ons-button modifier="large" ng-click="dialogEdit.hide()" style="margin-top:10px">Cancel</ons-button>
+      </ons-col>
+
+    </ons-row>
+
+  </ons-dialog>

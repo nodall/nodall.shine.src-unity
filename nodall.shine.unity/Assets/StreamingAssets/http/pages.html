@@ -1,0 +1,72 @@
+<ons-page var="surfacePage">
+    <ons-toolbar>
+		<div class="left"><ons-toolbar-button ng-click="goToHome()"><ons-icon icon="ion-home"></ons-icon></ons-toolbar-button></div>
+        <div class="center" style="font-size:20px"><div style="margin-top:-5px">Page Editor</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+        <div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': db.runtime.isGridEnabled }"></ons-icon></ons-toolbar-button></div>
+    </ons-toolbar>
+
+    <ons-row class="profile-wrapper">
+    </ons-row>
+
+	<ons-row>
+		<ons-col width="10px"></ons-col>
+		<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Pages</div></ons-col>
+
+		<ons-col width="32px" style="margin-left: 5px">
+		<ons-button modifier="quiet" ng-click="showAddPage()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="32px" style="margin-left: 1px; margin-right: 15px">
+		<ons-button modifier="quiet" ng-click="removeCurPage()" ng-disabled="pages.length <= 1"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="180px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverPages.show($event);">{{curPage.name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></div></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left:10px">
+		<ons-button modifier="large outline" ng-click="renameCurPage()"><ons-icon icon="ion-edit" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="10px"></ons-col>
+		<ons-col></ons-col>
+		<ons-col width="10px"></ons-col>
+	</ons-row>
+
+	<ons-row style="margin-top:15px">
+		<ons-col width="10px"></ons-col>
+		<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Layers</div></ons-col>
+
+		<ons-col width="32px" style="margin-left: 5px">
+		<ons-button modifier="quiet" ng-click="showAddLayer()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="32px" style="margin-left: 1px; margin-right: 15px">
+		<ons-button modifier="quiet" ng-click="removeCurLayer()" ng-disabled="layers.length <= 1"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="180px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverLayers.show($event);">{{curLayer.name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="renameCurLayer()"><ons-icon icon="ion-edit" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="goToMediaSelector()"><ons-icon icon="ion-images" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="goToTextEditor()"><ons-icon icon="ion-compose" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col></ons-col>
+		<ons-col width="10px"></ons-col>
+	</ons-row>
+
+	<div class="settings-header">Page editor</div>
+
+	<ons-row>
+	    <canvas id="pageCanvas" style="background-color:#ccc; width:100%; height:50%;margin: 10px" ng-controller="PageCanvasController">
+	    </canvas>
+	</ons-row>
+
+    <br>
+
+</ons-page>

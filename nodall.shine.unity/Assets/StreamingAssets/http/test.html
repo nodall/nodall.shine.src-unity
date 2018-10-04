@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<!-- CSP support mode (required for Windows Universal apps): https://docs.angularjs.org/api/ng/directive/ngCsp -->
+<html lang="en" ng-app="app" ng-csp>
+<head>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- JS dependencies (order matters!) -->
+    <script src="scripts/platformOverrides.js"></script>
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/onsen/js/onsenui.js"></script>
+
+    <!-- CSS dependencies -->
+    <link rel="stylesheet" href="lib/onsen/css/onsenui.css" />
+    <link rel="stylesheet" href="lib/onsen/css/onsen-css-components-blue-basic-theme.css" />
+
+    <!-- CSP support mode (required for Windows Universal apps) -->
+    <link rel="stylesheet" href="lib/angular/angular-csp.css" />
+
+    <!-- easeljs canvas stuff -->
+  <script type="text/javascript" src="easeljs-0.7.1.min.js"></script>
+  <script type="text/javascript" src="com/firsara/sys.js"></script>
+  <script type="text/javascript" src="TextureRectangle.js"></script>
+  <script type="text/javascript" src="Bezier.js"></script>
+  <script type="text/javascript" src="Canvas.js"></script>
+
+
+
+    <!-- --------------- App init --------------- -->
+
+    <title>Nexwarp SP</title>
+
+    <script>    
+
+//angular.element(document).ready(function() { setTimeout(initSurfaceCanvas, 5000) })
+
+  window.beziers = new Object()
+  window.surfaces = []
+  window.layersShapes = new Object()
+  window.layers = []
+
+  var myApp = angular.module('app', ['onsen']);
+
+    function isOfType(obj, type) {
+        return obj['UID'].lastIndexOf(type, 0) === 0
+    }
+  
+    function getObjects(obj, key, val) {
+        var objects = [];
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (typeof obj[i] == 'object') {
+                objects = objects.concat(getObjects(obj[i], key, val));
+            } else if (i == key && obj[key] == val) {
+                objects.push(obj);
+            }
+        }
+        return objects;
+    }
+
+    function getObject(obj, key, val) {
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (typeof obj[i] == 'object') {
+                var o = getObject(obj[i], key, val);
+                if (o != null) return o;
+            } else if (i == key && obj[key] == val) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    function getObjectsOfType(obj, type) {
+        var key = 'UID';
+        var objects = [];
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (typeof obj[i] == 'object') {
+                objects = objects.concat(getObjectsOfType(obj[i], type));
+            } else if (i == key && obj[key].lastIndexOf(type, 0) === 0) {
+                objects.push(obj);
+            }
+        }
+        return objects;
+    }
+
+    function getParentNode(obj, node) {
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (i == 'Children' && obj['Children'].indexOf(node) >= 0) {
+                return obj;
+            }            
+            else if (typeof obj[i] == 'object') {
+                var o = getParentNode(obj[i], node);
+                if (o != null) return o;
+            }
+        }
+        return null;
+    }
+
+  /******************    Surface CROP CANVAS     *********************/
+
+  myApp.controller('SurfaceCropCanvasController', function ($scope, $rootScope) {
+
+    if (typeof window.surfaceCropStage === 'undefined') {        
+      window.surfaceCropStage = initCanvas("surfaceCropCanvas")
+    }
+
+     $scope.$on("$destroy", function(){
+        delete window.surfaceCropStage
+        window.beziers = new Object()
+     });
+
+     $rootScope.$on("OnCurSurfaceChanged", function (event, data) {
+
+        //alert('my surface changed '+data.Name+' ['+data.UID+'] ')
+
+        if (data === undefined) return
+
+        $scope.curSurface = data
+
+        if (window.beziers.hasOwnProperty(data.UID)) {
+          var keys = Object.keys(window.beziers)
+          for (var i = 0; i < keys.length; ++i) {
+            var b = window.beziers[keys[i]]
+            if (b.UID == data.UID) b.enable()
+            else b.disable()
+          }
+          //window.beziers[data.UID].enable()
+        }
+
+     })
+
+     $rootScope.$on("OnSurfacesChanged", function(event, data) {
+
+        window.surfaces = data
+
+
+        window.surfaceCropStage.clear()
+        var bkg = window.surfaceCropStage.getChildAt(0)
+        window.surfaceCropStage.removeAllChildren()
+        window.surfaceCropStage.addChild(bkg)
+        window.beziers = new Object()
+        $scope.recreateView()
+
+        window.surfaceCropStage.update()
+     })
+
+    $scope.recreateView = function() {
+      var data = window.surfaces
+      for(var i = 0; i < data.length; ++i) {
+
+        var surf = data[i]
+        if (!window.beziers.hasOwnProperty(surf.UID)) {
+
+          var bez = new Bezier()
+          bez.UID = surf.UID
+          window.beziers[surf.UID] = bez
+          bez.Name = surf.Name
+          bez.stage = window.surfaceCropStage
+          bez.name = surf.Name + new Date().getMilliseconds()
+          window.surfaceCropStage.addChild(bez)
+          bez.parse(surf.Bezier)
+
+          var curSurfaceUID = -1
+          if (typeof window.curSurface != 'undefined') curSurfaceUID = window.curSurface.UID;
+
+          if (curSurfaceUID == surf.UID)  bez.enable()
+          else bez.disable()
+
+          console.log("creating surface "+surf.UID)
+
+          //$scope.beziers[surf.UID]
+          bez.onChange = function(UID, bezierstr) {
+            console.log('onchangeeeeee '+UID+' '+bezierstr)
+            context.requestUpdateBezier(UID, bezierstr)
+          }
+        }
+      }
+      window.surfaceCropStage.update()
+    }
+
+    $scope.recreateView()
+
+  })
+
+
+  /******************    Surface CANVAS     *********************/
+
+  myApp.controller('SurfaceCanvasController', function ($scope, $rootScope) {
+
+    if (typeof window.stageSurface === 'undefined') {        
+      window.stageSurface = initCanvas("surfaceCanvas")
+    }
+
+    $scope.curSurface = "";
+
+     $scope.$on("$destroy", function(){
+        delete window.stageSurface
+        window.beziers = new Object()
+     });
+
+     $rootScope.$on("OnCurSurfaceChanged", function (event, data) {
+
+        //alert('my surface changed '+data.Name+' ['+data.UID+'] ')
+
+        if (data === undefined) return
+
+        $scope.curSurface = data
+
+        if (window.beziers.hasOwnProperty(data.UID)) {
+          var keys = Object.keys(window.beziers)
+          for (var i = 0; i < keys.length; ++i) {
+            var b = window.beziers[keys[i]]
+            if (b.UID == data.UID) b.enable()
+            else b.disable()
+          }
+          //window.beziers[data.UID].enable()
+        }
+
+     })
+
+     $rootScope.$on("OnSurfacesChanged", function(event, data) {
+
+        window.surfaces = data
+
+
+        window.stageSurface.clear()
+        var bkg = window.stageSurface.getChildAt(0)
+        window.stageSurface.removeAllChildren()
+        window.stageSurface.addChild(bkg)
+        window.beziers = new Object()
+        $scope.recreateView()
+
+        window.stageSurface.update()
+     })
+
+    $scope.recreateView = function() {
+      var data = window.surfaces
+      for(var i = 0; i < data.length; ++i) {
+
+        var surf = data[i]
+        if (!window.beziers.hasOwnProperty(surf.UID)) {
+
+          var bez = new Bezier()
+          bez.UID = surf.UID
+          window.beziers[surf.UID] = bez
+          bez.Name = surf.Name
+          bez.stage = window.stageSurface
+          bez.name = surf.Name + new Date().getMilliseconds()
+          window.stageSurface.addChild(bez)
+          bez.parse(surf.Bezier)
+
+          var curSurfaceUID = -1
+          if (typeof window.curSurface != 'undefined') curSurfaceUID = window.curSurface.UID;
+
+          if (curSurfaceUID == surf.UID)  bez.enable()
+          else bez.disable()
+
+          console.log("creating surface "+surf.UID)
+
+          //$scope.beziers[surf.UID]
+          bez.onChange = function(UID, bezierstr) {
+            console.log('onchangeeeeee '+UID+' '+bezierstr)
+            context.requestUpdateBezier(UID, bezierstr)
+          }
+        }
+      }
+      window.stageSurface.update()
+    }
+
+    $scope.recreateView()
+
+  })
+
+  /******************    Page CANVAS     *********************/
+
+  myApp.controller('PageCanvasController', function ($scope, $rootScope) {
+
+    if (typeof window.pageStage === 'undefined') {        
+      window.pageStage = initCanvas("pageCanvas", 0.25, 0.25)
+    }
+
+    $scope.curSurface = "";
+
+     $scope.$on("$destroy", function(){
+        delete window.pageStage
+        window.layersShapes = new Object()
+     });
+
+     $rootScope.$on("OnCurLayerChanged", function (event, data) {
+
+        if (data == null) return
+
+        $scope.curLayer = data
+
+        if (window.layersShapes.hasOwnProperty(data.UID)) {
+          var keys = Object.keys(window.layersShapes)
+          for (var i = 0; i < keys.length; ++i) {
+            var b = window.layersShapes[keys[i]]
+            if (b.UID == data.UID) b.enable()
+            else b.disable()
+          }
+          //window.beziers[data.UID].enable()
+        }
+
+     })
+
+     $rootScope.$on("OnLayersChanged", function(event, data) {
+
+        window.layers = data
+        console.log("Layers changed: "+JSON.stringify(data))
+
+        window.pageStage.clear()
+        var bkg = window.pageStage.getChildAt(0)
+        window.pageStage.removeAllChildren()
+        window.pageStage.addChild(bkg)
+        window.layersShapes = new Object()
+        $scope.recreateView()
+        window.pageStage.update()
+     })
+
+    $scope.recreateView = function() {
+      var data = window.layers
+      console.log("RecreateView with "+JSON.stringify(data))
+      console.log("In stage "+window.pageStage.getNumChildren()+" shapes")
+      for(var i = 0; i < data.length; ++i) {
+
+        var layer = data[i]
+        if (!window.layersShapes.hasOwnProperty(layer.UID)) {
+
+          var tr = new TextureRectangle()
+          //tr.setup("Grid.png")
+          var mediaUID = layer.MediaUID
+          var media = $scope.getByUID(mediaUID)
+          console.log("Creating layer "+layer.UID+" using media ("+mediaUID+")")
+          console.log("Media is "+JSON.stringify(media))
+          if (media != null) {
+            tr.setup("Grid.png")
+            //tr.setup("medias/"+media.Filename+"preview.png")
+          } else {
+            tr.setup("Grid.png")
+          }
+
+          tr.UID = layer.UID
+          window.layersShapes[layer.UID] = tr
+          tr.Name = layer.Name
+          tr.stage = window.pageStage
+          tr.name = layer.Name + new Date().getMilliseconds()
+          window.pageStage.addChild(tr)
+          tr.parse(layer.Rectangle)
+
+          var curLayerUID = -1
+          if (typeof window.curLayer != 'undefined') curLayerUID = window.curLayer.UID
+
+          if (curLayerUID == layer.UID)  tr.enable()
+          else tr.disable()
+
+          tr.onChange = function(UID, rect) {
+            console.log('onchange rectangle in layer '+UID+' '+rect)
+            context.requestUpdateRectangle(UID, rect)
+          }
+        }
+      }
+      window.pageStage.update()
+    }
+    
+    $scope.recreateView()
+
+  })
+
+
+
+
+  var globalCurSurface;
+
+
+  myApp.controller('AppController', function ($scope, $rootScope) {
+
+    /******  HELPER  *******/
+       
+    $scope.shout = function (msg) {
+        ons.notification.alert({ message: msg });
+    };
+
+    /******  MODEL  *******/
+
+    $scope.db = {
+        UID: 'SPDatabase',
+        Name: 'SpacePlayerDB',
+        Children: [
+            {
+                UID: 'Screen-001',
+                Name: 'Screen 1',
+                Children: [
+                { 
+                    UID: 'Runtime',
+                    Name: 'Runtime',
+                    IsGridEnabled: false,
+                    SelectedScreenUID: '',
+                    SelectedPageUID: '',
+                    SelectedSequenceUID: '',
+                    SelectedCalendarUID: '',
+                },
+                {
+                    UID: 'Surface-001',
+                    Name: 'Surface 01',
+                    TextureRectangle: [ 0, 0, 0, 1 ],
+                    Bezier: [ 0, 0, 0, 1 ]
+                }
+                ]
+            },
+            {
+                UID: 'Page001',
+                Name: 'Page 1',
+                Children: [
+                    {
+                        UID: 'Media-001',
+                        Name: 'Grid',
+                        Filename: 'Grid.png',
+                    },
+                    {
+                        UID: 'Layer-001',
+                        Name: 'Layer 1'
+                    }
+                ]
+            }
+        ]
+    };
+
+    $scope.getByUID = function (uid) {
+        return getObject($scope.db, 'UID', uid)
+    }
+
+
+    $scope.getAllOfType = function(type) {
+        return getObjectsOfType($scope.db, type);
+    }
+
+    $scope.getAllOfType = function(parent, type) {
+        return getObjectsOfType(parent, type);
+    }
+
+    $scope.addNode = function(node) {
+        var existsNode = $scope.getByUID(node.UID) != null
+        console.log("addNode "+node+" exists? "+existsNode)
+        var parUID = node.ParentUID;
+        var parent = $scope.getByUID(parUID)
+        if (parent != null && !existsNode) {
+            delete node.ParentUID
+            parent.Children.push(node)
+            if (isOfType(node, 'Screen')) {
+                $scope.screens = getObjectsOfType($scope.db, 'Screen')
+                $scope.setCurScreen(node)
+            }
+            if (isOfType(node, 'Page')) {
+                $scope.pages = getObjectsOfType($scope.db, 'Page')
+                $scope.setCurPage(node)
+            }
+            if (isOfType(node, 'Surface')) {
+                $scope.surfaces = getObjectsOfType($scope.curScreen, 'Surface')
+                $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+                $scope.setCurSurface(node)
+            }
+            if (isOfType(node, 'Layer')) {
+                $scope.layers = getObjectsOfType($scope.curPage, 'Layer')
+                $rootScope.$emit('OnLayersChanged', $scope.layers)
+                $scope.setCurLayer(node)
+            }
+        }
+    }
+
+    $scope.removeNode = function(nodeUID) {
+        //$scope.shout('removeNode '+nodeUID)
+        var node = $scope.getByUID(nodeUID)
+        if (node != null) {
+            var parent = getParentNode($scope.db, node)
+            if (parent != null) {
+                var idxNode = parent.Children.indexOf(node)
+                parent.Children.splice(idxNode, 1)
+
+                if (isOfType(node, 'Screen')) {
+                    if ($scope.curScreen == node) {
+                        var idx = $scope.screens.indexOf(node)
+                        var newSel = $scope.screens[idx + 1]
+                        if (newSel === undefined) newSel = $scope.screens[idx - 1]
+                        $scope.screens = getObjectsOfType($scope.db, 'Screen')
+                        $scope.setCurScreen(newSel)
+                    }
+                }
+                if (isOfType(node, 'Page')) {
+                    if ($scope.curPage == node) {
+                        var idx = $scope.pages.indexOf(node)
+                        var newSel = $scope.pages[idx + 1]
+                        if (newSel === undefined) newSel = $scope.pages[idx - 1]
+                        $scope.pages = getObjectsOfType($scope.db, 'Page')
+                        $scope.setCurPage(newSel)
+                    }
+                }
+                if (isOfType(node, 'Surface')) {
+                    if ($scope.curSurface == node) {
+                        var idx = $scope.surfaces.indexOf(node)
+                        var newSel = $scope.surfaces[idx + 1]
+                        if (newSel === undefined) newSel = $scope.surfaces[idx - 1]
+                        $scope.surfaces = getObjectsOfType($scope.curScreen, 'Surface')
+                        $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+                        $scope.setCurSurface(newSel)
+                    }
+                }
+                if (isOfType(node, 'Layer')) {
+                    if ($scope.curLayer == node) {
+                        var idx = $scope.layers.indexOf(node)
+                        var newSel = $scope.layers[idx + 1]
+                        if (newSel === undefined) newSel = $scope.layers[idx - 1]
+                        $scope.layers = getObjectsOfType($scope.curPage, 'Layer')
+                        $rootScope.$emit('OnLayersChanged', $scope.layers)
+                        $scope.setCurLayer(newSel)
+                    }
+                }
+
+                //$scope.shout('Removing '+nodeUID+' from parent '+parent.UID)
+            }
+        }
+    }
+
+    $scope.addDbNode = function(parent, dbNode) {
+
+        if (parent != null) parent = $scope.db
+        parent.Children.push(dbNode);
+
+        //console.log("At $scope.addDbNode Adding DB node "+dbNode+" to parent "+parent)
+    }
+
+    $scope.devices = [  
+        /*
+        {
+            UID: "xxx",
+            name: "Local Nexwarp 1",
+            ip: "192.168.1.1",
+            version: "",
+            SO: "Windows 10",
+            isLinked: true
+        },
+        {
+            name: "Local Nexwarp 3"
+        },*/
+    ];
+
+    $scope.screens = [ "Screen 01", "Screen 02", "Screen 03" ];
+    $scope.surfaces = [ "Surface 01", "Surface 02" ];
+
+    $scope.pages = [ "Page 01", "Page 02", "Page 03", "Page 04" ];
+    $scope.layers = [ "Layer1", "Layer2", "layer3" ];
+
+
+    $scope.curDevice = "Local Nexwarp 1";
+
+    $scope.medias = []
+
+
+    $scope.updateDB = function(db) {
+        $scope.db = db
+        console.log(JSON.stringify($scope.db))
+
+        $scope.IsGridEnabled = $scope.getByUID('RuntimeNode_0000').IsGridEnabled
+
+        $scope.screens = getObjectsOfType($scope.db, 'Screen')
+        $scope.pages = getObjectsOfType($scope.db, 'Page')
+
+        console.log('Screens: ' +JSON.stringify($scope.screens))
+        console.log('Pages: ' +JSON.stringify($scope.pages))
+
+        $scope.setCurScreen($scope.screens[0])
+        $scope.setCurPage($scope.pages[0])
+
+        console.log("Cur SCREEN:"+JSON.stringify($scope.curScreen))
+        console.log("Cur SURFACE:"+JSON.stringify($scope.curSurface))
+        console.log("Cur PAGE:"+JSON.stringify($scope.curPage))
+        console.log("Cur LAYER:"+JSON.stringify($scope.curLayer))
+    }
+
+    $scope.goToHome = function() {
+        $scope.homeNavigator.popPage()
+        context.disconnectFromDevice()
+    }
+
+    $scope.goToCropPage = function() {
+        $scope.homeNavigator.pushPage('surface_crop.html')
+    }
+
+    $scope.requestPreviewDevice = function(device) {
+        context.requestPreviewDevice(device.ip)
+    }
+
+    $scope.requestPreviewMedia = function(filename) {
+        console.log("Request preview media "+filename)
+        context.requestPreviewMedia(filename)
+    }
+
+    $scope.toggleGrid = function() {
+        context.toggleGrid()
+        $scope.IsGridEnabled = !$scope.IsGridEnabled
+    }
+
+    $scope.updateMedias = function(medias) {
+        $scope.medias = medias
+    }
+	
+	$scope.setCurScreen = function(screen) { 
+        $scope.curScreen = screen;
+        $scope.surfaces = getObjectsOfType($scope.curScreen, 'Surface');
+        $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+        $scope.setCurSurface($scope.surfaces[0])
+        $scope.popoverScreens.hide(); 
+    }
+	$scope.setCurSurface = function(surface) { 
+    $scope.curSurface = surface;
+    $scope.popoverSurfaces.hide();
+    $rootScope.$emit('OnCurSurfaceChanged', surface) 
+    window.curSurface = surface
+  }
+
+    $scope.setCurPage = function(page) { 
+        context.setCurPage(page.UID)
+        $scope.curPage = page;
+        $scope.layers = getObjectsOfType($scope.curPage, 'Layer')
+        window.layers = $scope.layers
+        $rootScope.$emit('OnLayersChanged', $scope.layers)        
+        $scope.setCurLayer($scope.layers[0])
+        $scope.popoverPages.hide(); 
+    }
+    $scope.setCurLayer = function(layer) {
+      $scope.curLayer = layer; $scope.popoverLayers.hide(); 
+      $rootScope.$emit('OnCurLayerChanged', layer) 
+      window.curLayer = layer
+    }
+
+    $scope.setCurDevice = function(device) { 
+        context.connectToDevice(device.ip)
+        $scope.curDevice = device; 
+    }
+
+
+    /******  ADD AND REMOVE ELEMENTS  *******/
+	
+    $scope.askFor = function(title, callback) {
+        ons.notification.prompt({
+          title: title,
+          message: "  ",
+          modifier: "material",
+          cancelable: true,
+          callback: callback
+       });        
+    }
+
+	$scope.showAddScreen = function() {
+        $scope.askFor("New screen", function(res) { $scope.addScreen(res) });
+	};
+
+    $scope.showAddSurface = function() {
+        $scope.askFor("New surface", function(res) { $scope.addSurface(res) });        
+    };
+
+    $scope.showAddPage = function() {
+        $scope.askFor("New page", function(res) { $scope.addPage(res) });
+    };
+
+    $scope.showAddLayer = function() {
+        $scope.askFor("New layer", function(res) { $scope.addLayer(res) });        
+    };
+
+    $scope.addDevice = function(device) {       // called from outside
+        console.log("called $scope.addDevice")
+        if (getObject($scope.devices, "ip", device.ip) == null)
+            $scope.devices.push(device)
+    }
+
+    $scope.addScreen = function(screen) {
+        context.requestAddNode($scope.db.UID, 'Screen', screen)
+    }
+
+    $scope.addSurface = function(surface) {
+        context.requestAddNode($scope.curScreen.UID, 'Surface', surface)
+    }
+
+    $scope.addPage = function(page) {
+        context.requestAddNode($scope.db.UID, 'Page', page)
+    }
+
+    $scope.addLayer = function(layer) {
+        context.requestAddNode($scope.curPage.UID, 'Layer', layer)
+    }
+
+    $scope.removeCurScreen = function() {
+        context.requestRemoveNode($scope.curScreen.UID)
+    }
+	
+    $scope.removeCurSurface = function() {
+        context.requestRemoveNode($scope.curSurface.UID)
+    }
+
+    $scope.removeCurPage = function() {
+        context.requestRemoveNode($scope.curPage.UID)
+    }
+
+    $scope.removeCurLayer = function() {
+        context.requestRemoveNode($scope.curLayer.UID)
+    }
+
+    /******  OTHER EVENTS  *******/
+	
+    $scope.requestDevices = function() {
+        context.requestDevices();
+    }
+
+
+    /******  POPUPS  *******/
+
+	ons.createPopover('popover_screens.html').then(function(popover) {
+	    $scope.popoverScreens = popover;
+	  });	
+
+	ons.createPopover('popover_surfaces.html').then(function(popover) {
+	    $scope.popoverSurfaces = popover;
+	  });
+
+    ons.createPopover('popover_pages.html').then(function(popover) {
+        $scope.popoverPages = popover;
+      });   
+
+    ons.createPopover('popover_layers.html').then(function(popover) {
+        $scope.popoverLayers = popover;
+      });
+
+	
+    /******  DIALOGS  *******/	  
+	  
+	ons.createDialog("dialog_addsurface.html").then(function(dialog) {
+		$scope.dialogAddSurface = dialog;
+	});
+
+
+    var execute = function(func, param) {
+        $scope[func](param);
+        $scope.$apply();
+    };
+
+	var shout = function (msg) {
+		$scope.shout(msg);
+	};
+	
+	window.shout = shout;
+    window.execute = execute;
+
+  });
+    </script>
+
+    <style>
+
+      .btn-pressed {
+        background-color: #D1E9FD;
+      }
+
+        .tab {
+            line-height: 1;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            padding: 0;
+            margin: 0;
+            vertical-align: top;
+            line-height: 28px;
+        }
+
+        .tab-label {
+            line-height: 11px;
+            vertical-align: top;
+            font-size: 11px;
+        }
+
+        .profile-wrapper {
+            padding: 16px 10px 0 10px;
+        }
+
+        .profile-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            -webkit-border-radius: 100%;
+            background-color: #ccc;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            padding: 4px 0 2px 0;
+        }
+
+        .profile-email {
+            font-size: 15px;
+            opacity: 0.4;
+        }
+
+        .switch--list-item {
+            margin-right: 0px;
+        }
+
+        .settings-header {
+            font-weight: 500;
+            font-size: 14px;
+            opacity: 0.4;
+            padding: 10px 0 0px 10px;
+            margin-bottom: -4px;
+        }
+
+        .settings-list {
+            margin-top: 10px;
+        }
+
+        .item {
+            padding: 10px;
+            line-height: 1;
+        }
+
+        .item-thum {
+            background-color: #ccc;
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            -webkit-border-radius: 100%;
+        }
+
+        .item-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .item-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.3;
+            margin: 4px 0 0 0;
+            padding: 0 30px 0 0;
+        }
+
+        .item-label {
+            font-size: 12px;
+            color: #999;
+            float: right;
+        }
+    </style>
+
+</head>
+
+<body ng-controller="AppController">
+    <!-- Cordova reference 
+    <script src="cordova.js"></script>
+    <script src="scripts/index.js"></script>
+    -->
+
+<ons-navigator var="homeNavigator" page="home.html">
+    <ons-page>
+        <ons-toolbar>
+            <div class="center">Main page</div>
+        </ons-toolbar>
+
+        <p style="text-align: center">
+          <ons-button modifier="light" ng-click="homeNavigator.pushPage('mainpage.html');">Push</ons-button>
+        </p>
+    </ons-page>
+</ons-navigator>
+
+
+    <!--ons-tabbar>
+        <ons-tab active="true" page="home.html">
+            <div class="tab">
+                <ons-icon icon="ion-home" class="tab-icon"></ons-icon>
+                <div class="tab-label">Home</div>
+            </div>
+        </ons-tab>
+
+        <ons-tab active="true" page="surfaces.html">
+            <div class="tab">
+                <ons-icon icon="ion-ios-grid-view" class="tab-icon"></ons-icon>
+                <div class="tab-label">Surfaces</div>
+            </div>
+        </ons-tab>	
+
+        <ons-tab active="true" page="media_explorer.html">
+            <div class="tab">
+                <ons-icon icon="ion-images" class="tab-icon"></ons-icon>
+                <div class="tab-label">Media Explorer</div>
+            </div>
+        </ons-tab>	
+
+        <ons-tab active="true" page="pages.html">
+            <div class="tab">
+                <ons-icon icon="ion-ios-browsers" class="tab-icon"></ons-icon>
+                <div class="tab-label">Page Editor</div>
+            </div>
+        </ons-tab>	
+
+        <ons-tab active="true" page="home.html">
+            <div class="tab">
+                <ons-icon icon="ion-ios-list-outline" class="tab-icon"></ons-icon>
+                <div class="tab-label">Sequencer</div>
+            </div>
+        </ons-tab>	
+
+        <ons-tab active="false" page="home.html">
+            <div class="tab">
+                <ons-icon icon="ion-ios-calendar-outline" class="tab-icon"></ons-icon>
+                <div class="tab-label">Calendar</div>
+            </div>
+        </ons-tab>	
+
+    </ons-tabbar-->
+
+    <ons-template id="settings.html">
+        <ons-page>
+            <ons-toolbar>
+                <div class="center">Settings</div>
+            </ons-toolbar>
+
+            <ons-row class="profile-wrapper">
+                <ons-col width="60px" class="profile-image-wrapper">
+                    <div class="profile-image"></div>
+                </ons-col>
+
+                <ons-col>
+                    <div class="profile-name">Foobar</div>
+                    <div class="profile-email">foobar@example.com</div>
+                </ons-col>
+
+            </ons-row>
+
+            <div class="settings-header">Share</div>
+
+            <ons-list modifier="inset" class="settings-list">
+                <ons-list-item>
+                    Twitter
+                    <ons-switch modifier="list-item"></ons-switch>
+                </ons-list-item>
+
+                <ons-list-item>
+                    Facebook
+                    <ons-switch modifier="list-item" checked></ons-switch>
+                </ons-list-item>
+            </ons-list>
+
+            <div class="settings-header">Others</div>
+
+            <ons-list modifier="inset" class="settings-list">
+                <ons-list-item modifier="chevron" ng-click="doSomething()">
+                    Terms of Service
+                </ons-list-item>
+
+                <ons-list-item modifier="chevron" ng-click="doSomething()">
+                    Privacy Policy
+                </ons-list-item>
+            </ons-list>
+
+            <br>
+
+            <ons-list modifier="inset" class="settings-list">
+                <ons-list-item modifier="tappable" ng-click="doSomething()">
+                    <ons-icon icon="ion-log-out" style="opacity: 0.8"></ons-icon>
+                    Sign out
+                </ons-list-item>
+            </ons-list>
+
+            <br>
+
+        </ons-page>
+    </ons-template>
+</body>
+</html>

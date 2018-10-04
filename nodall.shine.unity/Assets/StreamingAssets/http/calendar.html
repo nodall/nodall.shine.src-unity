@@ -1,0 +1,62 @@
+<ons-page var="surfacePage">
+
+	<ons-toolbar>
+	    		<div class="left"><ons-toolbar-button ng-click="goToHome()"><ons-icon icon="ion-home"></ons-icon></ons-toolbar-button></div>
+                <div class="center" style="font-size:20px"><div style="margin-top:-5px">Calendar</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+                <div class="right"><ons-toolbar-button ng-click="doSomething()"><ons-icon icon="ion-ios-grid-view-outline"></ons-icon></ons-toolbar-button></div>
+            </ons-toolbar>
+
+            <ons-row class="profile-wrapper">
+            </ons-row>
+
+
+        <div class="navigation-bar">
+          <div class="navigation-bar__center">
+
+            <!-- segment control -->
+            <div class="button-bar" style="width:200px; margin:8px auto 0;">
+              <div class="button-bar__item">
+                <input type="radio" name="navi-segment-a" checked>
+                <div class="button-bar__button">Today</div>
+              </div>
+              <div class="button-bar__item">
+                <input type="radio" name="navi-segment-a">
+                <div class="button-bar__button">Tomorrow</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <ons-list class="plan-list">
+          <ons-list-item modifier="chevron" class="plan" ng-repeat="a in [1,2,3,4,5,6,7,8,9,10]">
+            <ons-row>
+              <ons-col width="80px" class="plan-left">
+                <div class="plan-date">5:30 PM</div>
+                <div class="plan-duration">1h</div>
+              </ons-col>
+
+              <ons-col width="6px" class="plan-center" ng-style="{backgroundColor:a % 3 == 1 ? '#3399ff' : '#ccc'}">
+              </ons-col>
+
+              <ons-col class="plan-right">
+                <div class="plan-name">Onsen UI Meetup</div>
+
+                <div class="plan-info">
+                  <div ng-hide="a % 4 == 0">
+                    <ons-icon icon="fa-phone"></ons-icon>123-456-789
+                  </div>
+
+                  <div ng-hide="a % 3 == 0">
+                    <ons-icon icon="fa-map-marker"></ons-icon>Moscone, San Francisco
+                  </div>
+                </div>
+              </ons-col>
+            </ons-row>
+          </ons-list-item>
+
+        </ons-list>
+
+	<br>
+
+</ons-page>

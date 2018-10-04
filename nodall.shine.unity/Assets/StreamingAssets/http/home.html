@@ -1,0 +1,49 @@
+<!--ons-navigator var="homeNavigator"-->
+    <ons-page>
+        <ons-toolbar>
+            <div class="left"></div>
+            <div class="center" style="font-size:20px">Nexwarp SP edition</div>
+            <div class="right"><!--ons-toolbar-button ng-click="doSomething()"><ons-icon icon="ion-ios-grid-view-outline"></ons-icon></ons-toolbar-button--></div>
+        </ons-toolbar>
+
+    <ons-row>
+        <ons-col>
+            <div style="margin:10px">
+            Discover SpacePlayer(s)
+            </div>
+        </ons-col>
+        <ons-col width="50px">
+            <ons-button modifier="large quiet" ng-click="requestDeviceIP()"><ons-icon icon="ion-plus" size="25px" fixed-width="false"></ons-icon></ons-button>    
+        </ons-col>
+        <ons-col width="50px">
+        	<ons-button modifier="large quiet" ng-click="requestDevices()"><ons-icon icon="ion-refresh" size="25px" fixed-width="false"></ons-icon></ons-button>	
+        </ons-col>
+    </ons-row>
+
+        <ons-list style="margin: -1px 0">
+            <ons-list-item modifier="chevron" class="item" ng-repeat="device in devices">
+                <ons-row>
+                    <ons-col width="60px" ng-click="setCurDevice(device);homeNavigator.pushPage('device_settings.html');">
+                    	<ons-icon icon="ion-toggle" size="50px" fixed-width="false"></ons-icon>
+                    </ons-col>
+                    <ons-col width="60px" ng-click="requestPreviewDevice(device);">
+                    	<ons-icon icon="ion-eye" size="50px" fixed-width="false"></ons-icon>
+                    </ons-col>
+                    <ons-col ng-click="setCurDevice(device);homeNavigator.pushPage('mainpage.html');">
+	    
+                        <header>
+                            <span class="item-title">{{device.name}}</span>
+                            <span class="item-label">{{device.isLinked == true ? "Linked" : ""}}</span>
+                        </header>
+                        <p class="item-desc">{{device.ip}}</p>
+                    </ons-col>
+                </ons-row>
+            </ons-list-item>
+        </ons-list>
+
+<br>
+          <!--ons-button onclick="homeNavigator.pushPage('next.html')">Next</ons-button-->
+
+    </ons-page>
+
+<!--/ons-navigator-->

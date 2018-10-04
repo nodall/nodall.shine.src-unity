@@ -1,0 +1,66 @@
+{
+	"runtime": {
+	      "isGridEnabled": false,
+	      "selectedScreen_id": "Screen_0000",
+	      "selectedPage_id": "",
+	      "selectedSequence_id": "",
+	      "selectedCalendar_id": "",
+	      "playMode": "Page"
+	},
+	"screens": [
+		{
+			"_type": "Screen",
+			"_id": "Screen_0000",
+			"name": "Screen01",
+		}
+	],	
+	"surfaces": [
+		{
+			"_type": "Surface",
+			"_id": "Surface_0000",
+			"_parent_id": "Screen_0000",
+			"name": "Surface01",	
+			"textureRectangle": "0;0;1;1",
+			"bezier": ".000000000;.000000000|.333333333;.000000000|.666666667;.000000000|1.000000000;.000000000|.000000000;.333333333|.333333333;.333333333|.666666667;.333333333|1.000000000;.333333333|.000000000;.666666667|.333333333;.666666667|.666666667;.666666667|1.000000000;.666666667|.000000000;1.000000000|.333333333;1.000000000|.666666667;1.000000000|1.000000000;1.000000000|0;0;1;1",
+			"type": "quad"
+		}		
+	],	
+	"pages": [
+		{
+			"_id": "Page_0000",
+			"name": "Grid",
+			"medias": [
+				{
+					"_id": "Media_0000",
+					"name": "Media01",
+					"filename": "Grid.png",
+					"size": "0;0"
+				}					
+			]
+		}
+	],
+	"layers": [
+		{
+			"_id": "Layer_0000",
+			"_parent_id": "Page_0000",
+			"name": "Layer01",
+			"vertexTransform": ".000000000;.000000000|1.000000000;1.000000000|0",
+			"media_id": "Media_0000",
+			"rectangle": "0;0;1;1",
+			"filename": ""
+		}
+	],
+	"sequences": [
+		{
+		"_id": "Sequence_0000",
+		"name": "Sequence 1",
+		"seqitems": [
+				{
+					"page": "Grid",
+					"page_id": "Page_0000",
+					"duration": "00:00:20.0"
+				}
+			]
+		}
+    ]
+}

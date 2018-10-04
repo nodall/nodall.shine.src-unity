@@ -1,0 +1,5 @@
+  <ons-popover direction="down" cancelable>
+    <ons-list>
+      <ons-list-item modifier="tappable" ng-repeat="item in fontSizes track by $index" ng-click="curText.size=item; popoverFontSizes.hide(); updateText()">{{item}} pts</ons-list-item>
+    </ons-list>
+  </ons-popover>

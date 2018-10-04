@@ -1,0 +1,49 @@
+<ons-page var="surfacePage">
+
+	<ons-toolbar>
+		        <div class="left"><ons-back-button></ons-back-button></div>
+                <!--div class="center" style="font-size:25px"><div>Surfaces</div><span style="font-size:10px">{{curDevice.name}}</div-->
+                <div class="center" style="font-size:20px"><div style="margin-top:-5px">Surface Input Crop</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+                <div class="right"><ons-toolbar-button ng-click="toggleGrid()" ng-class="{'btn-pressed': isGridEnabled }"><ons-icon icon="ion-ios-grid-view-outline"></ons-icon></ons-toolbar-button></div>
+            </ons-toolbar>
+
+            <ons-row class="profile-wrapper">
+            </ons-row>
+
+
+	<ons-row>
+	<ons-col width="10px"></ons-col>
+	<ons-col width="90px"><div style="margin-top:10px;font-size:20px"></div></ons-col>
+	<ons-col width="46px" style="margin-left: 5px">
+	</ons-col>
+	<ons-col width="46px" style="margin-left: 5px; margin-right: 15px">
+	</ons-col>
+	<ons-col width="180px">
+	</ons-col>
+	<ons-col></ons-col>
+	<ons-col width="46px">
+	</ons-col>
+	<ons-col width="10px"></ons-col>
+	</ons-row>
+
+	<ons-row style="margin-top:15px">
+	<ons-col width="10px"></ons-col>
+	<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Surfaces</div></ons-col>
+	<ons-col width="46px" style="margin-left: 5px">
+	</ons-col>
+	<ons-col width="46px" style="margin-left: 5px; margin-right: 15px">
+	</ons-col>
+	<ons-col width="180px">
+	<ons-button modifier="large outline" ng-click="popoverSurfaces.show($event)">{{curSurface.Name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></ons-icon></ons-button>
+	</ons-col>
+	<ons-col width="10px"></ons-col>
+	</ons-row>
+
+            <div class="settings-header">Texture crop editor</div>
+	    
+	<ons-row>
+	    <canvas id="surfaceCropCanvas" style="background-color:#ccc; width:100%; height:50%;margin: 10px" ng-controller="SurfaceCropCanvasController">
+	    </canvas>
+	</ons-row>
+    <br>
+</ons-page>

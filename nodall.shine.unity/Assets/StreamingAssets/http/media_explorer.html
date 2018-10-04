@@ -1,0 +1,62 @@
+<ons-navigator>
+    <ons-page>
+        <ons-toolbar>
+            <div class="left"><ons-toolbar-button ng-click="goToHome()"><ons-icon icon="ion-home"></ons-icon></ons-toolbar-button></div>
+            <div class="center" style="font-size:20px"><div style="margin-top:-5px">Media Explorer</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+            <div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': db.runtime.isGridEnabled }"></ons-icon></ons-toolbar-button></div>
+        </ons-toolbar>
+
+    <ons-row>
+    	<ons-col>
+    	<div style="margin:10px">
+    	Medias
+    	</div>
+    	</ons-col>
+        <ons-col width="50px">
+            <ons-button modifier="large quiet" ng-click="dialogAddMedia.show($event)"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>        
+        </ons-col>
+    	<ons-col width="50px">
+    		<ons-button modifier="large quiet" ng-click="refreshMedia()"><ons-icon icon="ion-refresh" size="25px" fixed-width="false"></ons-icon></ons-button>		
+    	</ons-col>
+    </ons-row>
+
+        <ons-list style="margin: -1px 0">
+            <ons-list-item class="item" ng-repeat="item in filesUploading.slice().reverse() track by $index">
+                <ons-row>
+                    <ons-col width="100px" ng-click="">			
+                    <img src="images/loading_icon.gif" width="90px" style="height:45px; width:80px; -webkit-border-radius:15px"/>
+                    </ons-col>
+                    <!--ons-col width="60px" style="opacity:0.2" ng-click="requestPreviewMedia(item.name)">
+	                     <ons-icon icon="ion-eye" size="50px" fixed-width="false"></ons-icon>
+                    </ons-col-->
+                    <ons-col>
+                        <header>
+                            <span class="item-title">{{item.name}}</span>
+                            <span class="item-label">{{(100*item.sent/item.size).toFixed(1)}}%</span>
+                        </header>
+                        <p class="item-desc">{{(item.sent/(1024*1024)).toFixed(1)}} of {{(item.size/(1024*1024)).toFixed(1)}} MB</p>
+                    </ons-col>
+                </ons-row>
+            </ons-list-item>
+
+            <ons-list-item modifier="chevron" class="item" ng-repeat="item in db.medias.slice().reverse() track by $index">
+                <ons-row>
+                    <ons-col width="100px" ng-click="">			
+                    <img src="thumbs/{{item.name}}.jpg" width="90px" style="height:55px; width:80px; -webkit-border-radius:15px"/>
+                    </ons-col>
+                    <ons-col width="60px" ng-click="requestPreviewMedia(item.name)">
+	                     <ons-icon icon="ion-eye" size="50px" fixed-width="false"></ons-icon>
+                    </ons-col>
+                    <ons-col ng-click="goToMediaViewer(item)">
+                        <header>
+                            <span class="item-title">{{item.name}}</span>
+                            <span class="item-label">{{item.duration}}</span>
+                            <!--span class="item-label">{{(item.size/(1024*1024)).toFixed(1)}} MB</span-->
+                        </header>
+                        <p class="item-desc">{{item.resolution}} {{(item.size/(1024*1024)).toFixed(1)}} MB</p>
+                    </ons-col>
+                </ons-row>
+            </ons-list-item>
+        </ons-list>
+    </ons-page>
+</ons-navigator>

@@ -1,0 +1,39 @@
+  <ons-dialog var="dialogAddMedia" cancelable>
+
+    <ons-toolbar inline>
+      <div class="center" style="font-weight:bolder">
+        Add new media
+      </div>
+    </ons-toolbar>
+
+   <ons-list>
+      <ons-list-item modifier="tappable">
+    <p>
+      <input type="file" id="files" name="files[]" multiple style="padding:20px">
+    </p>
+      </ons-list-item>
+
+
+      <ons-list-item modifier="tappable">
+      <p style="padding:20px">
+      	<ons-icon icon="ion-android-download" style="padding:5px"></ons-icon>
+      	Download content from cloud
+      </p>
+      </ons-list-item>
+
+    </ons-list>
+
+
+    <ons-row style="padding:20px">
+
+      <ons-col>
+        <ons-button modifier="large" ng-click="uploadFiles(filesToUpload);dialogAddMedia.hide()" style="margin-top:10px">Upload</ons-button>
+      </ons-col>
+      <ons-col width="20px"></ons-col>
+      <ons-col>
+        <ons-button modifier="large" ng-click="dialogAddMedia.hide()" style="margin-top:10px">Cancel</ons-button>
+      </ons-col>
+
+    </ons-row>
+
+  </ons-dialog>

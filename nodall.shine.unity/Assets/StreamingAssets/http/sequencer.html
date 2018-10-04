@@ -1,0 +1,70 @@
+<ons-page var="sequencerPage">
+
+	<ons-toolbar>
+	    		<div class="left"><ons-toolbar-button ng-click="goToHome()"><ons-icon icon="ion-home"></ons-icon></ons-toolbar-button></div>
+                <div class="center" style="font-size:20px"><div style="margin-top:-5px">Sequencer</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+                <div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': db.runtime.isGridEnabled }"></ons-icon></ons-toolbar-button></div>
+            </ons-toolbar>
+
+            <ons-row class="profile-wrapper">
+            </ons-row>
+
+
+	<ons-row>
+	<ons-col width="10px"></ons-col>
+	<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Sequence</div></ons-col>
+
+		<ons-col width="32px" style="margin-left: 5px">
+		<ons-button modifier="quiet" ng-click="showAddSequence()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="32px" style="margin-left: 1px; margin-right: 15px">
+		<ons-button modifier="quiet" ng-click="removeCurSequence()"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+
+		<ons-col width="180px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverSequences.show($event);">{{curSequence.name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="renameCurSequence()"><ons-icon icon="ion-edit" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="playCurSequence()"><ons-icon icon="ion-play" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="10px"></ons-col>
+	</ons-row>
+
+        <div class="settings-header">Sequence editor</div>
+	    
+	<ons-list modifier="inset" class="settings-list" ui-sortable ng-model="surfaces">
+		<ons-list-item ng-repeat="seqitem in curSequence.seqitems" style="background:white">
+		<ons-icon icon="ion-navicon" style="margin:10px"></ons-icon>
+		<ons-button modifier="quiet" ng-click="popoverSeqPages.setCurIndex($index); popoverSeqPages.show($event)">{{seqitem.page}} <ons-icon icon="ion-chevron-down"></ons-icon></ons-button>
+		<ons-button modifier="quiet" ng-click="removeSeqItem($index)" style="float:right;margin:2px"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		<!--ons-button modifier="list-item" style="float:right;margin:2px">Page</ons-button-->
+		<ons-button modifier="list-item quiet" ng-click="popoverSeqDuration.setDuration(seqitem.duration); popoverSeqDuration.setCurIndex($index); popoverSeqDuration.show($event)" style="float:right;margin:2px;margin-right:20px">{{seqitem.duration}}</ons-button-->
+		<!--input type="text" class="text-input" value="{{seqitem.duration}}" style="margin:8px;width:110px;text-align:center;float:right"-->
+
+		</ons-list-item>
+		</div>
+
+	</ons-list>
+	<div style="padding:10px"></div>
+
+	<ons-row>
+	<ons-col width="10px"></ons-col>
+		<ons-col>
+		<ons-button modifier="quiet" ng-click="addSeqItem()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false" style="margin-right:8px;margin-top:5px"></ons-icon>
+		Add page into sequence
+		</ons-button>
+		</ons-col>
+
+		<ons-col width="10px"></ons-col>
+	</ons-row>
+
+
+    <br>
+</ons-page>

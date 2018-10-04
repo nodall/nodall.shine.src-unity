@@ -1,0 +1,35 @@
+{
+	"NWCore": {
+		"wsClient": {
+			"url": "ws://localhost:7000/wsapi",
+			"connectionData": {
+				"type": "unity",
+				"uid": "unity"
+			},
+			"hubChannel": "unity",
+			"restChannel": "unity"
+		},
+		"wwwFolders": "c:/nodall.shine/www/",
+		"window": {
+			"x": 1920,
+			"y": 0,
+			"width": 1920,
+			"height": 1080,
+			"showFps": false
+		}
+	},
+	"Shine": {
+		"MediaCompositor": {
+			"desktopDuplicationMonitorId": 0,
+			"transitionSeconds": 1,
+			"width": 1920,
+			"height": 1080
+		},
+		"Folders": {
+			"www": "c:/nodall.shine/www/",
+			"sessions": "c:/nodall.shine/www/sessions/",
+			"assets": "c:/nodall.shine/medias/node/nodall.shine.node/",
+			"medias": "c:/nodall.shine/medias/node/nodall.shine.node/medias/"
+		}
+	}
+}

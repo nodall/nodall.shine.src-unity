@@ -1,0 +1,5 @@
+  <ons-popover direction="down" cancelable>
+    <ons-list>
+      <ons-list-item modifier="tappable" ng-repeat="item in layers track by $index" ng-click="setCurLayer(item)">{{item.name}}</ons-list-item>
+    </ons-list>
+  </ons-popover>

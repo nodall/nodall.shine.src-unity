@@ -1,0 +1,49 @@
+{
+	"states": [
+	{
+		"name": "app-menu-no",
+		"image": "app-menu-no.png",
+		"text": "Conéctate"
+	},
+	{
+		"name": "app-menu",
+		"image": "app-menu.png",
+		"text": "Bienvenido, selecciona una app en tu móvil..."
+	},
+	{
+		"name": "app-medias",
+		"image": "app-medias.png",
+		"text": "Te hemos preparado algunos fondos para tu habitación..."
+	},
+	{
+		"name": "app-photos",
+		"image": "app-photos.png",
+		"text": "Podrás ver cualquier detalle de tus fotos..."
+	},
+	{
+		"name": "app-tv",
+		"image": "app-tv.png",
+		"text": "Escoge el tamaño de tu TV"
+	},
+	{
+		"name": "app-yoga",
+		"image": "app-yoga.png",
+		"text": "Disfruta de una sesión de yoga"
+	},
+	{
+		"name": "app-present",
+		"image": "app-tv.png",
+		"text": "Vamos a empezar..."
+	},
+	{
+		"name": "app-maps",
+		"image": "app-tv.png",
+		"text": ""
+	},
+	{
+		"name": "app-tips",
+		"image": "tiger.jpg",
+		"text": "Estos son los tips"
+	}
+	]
+}

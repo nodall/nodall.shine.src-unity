@@ -1,0 +1,71 @@
+{
+	"firstTimeDuration": 54.8,
+	"states": [
+	{
+		"name": "app-menu-no",
+		"image": "qrcode.png",
+		"text": ""
+	},
+	{
+		"name": "app-menu",
+		"image": "app-menu.png",
+		"text": ""
+	},
+	{
+		"name": "app-assistant",
+		"image": "assistant.png",
+		"text": "",
+		"video": "c:/medias-nod-wall/Faces.mp4"
+	},
+	{
+		"name": "app-chosen",
+		"image": "chosen.png",
+		"text": ""
+	},
+	{
+		"name": "app-colors",
+		"image": "colors.png",
+		"text": ""
+	},
+	{
+		"name": "app-livingwall",
+		"image": "living wall.png",
+		"text": ""
+	},
+	{
+		"name": "app-maps",
+		"image": "maps.png",
+		"text": ""
+	},
+	{
+		"name": "app-museum",
+		"image": "museum.png",
+		"text": ""
+	},
+	{
+		"name": "app-photos",
+		"image": "myphotos.png",
+		"text": ""
+	},
+	{
+		"name": "app-play",
+		"image": "play.png",
+		"text": ""
+	},
+	{
+		"name": "app-route3d",
+		"image": "route3d.png",
+		"text": ""
+	},
+	{
+		"name": "app-tv",
+		"image": "tv.png",
+		"text": ""
+	},
+	{
+		"name": "app-tips",
+		"image": "tips.png",
+		"text": ""
+	}
+	]
+}

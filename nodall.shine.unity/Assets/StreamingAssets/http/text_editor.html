@@ -1,0 +1,43 @@
+<ons-page>
+    <ons-toolbar>
+        <div class="left"><ons-back-button></ons-back-button></div>
+        <div class="center" style="font-size:20px"><div style="margin-top:-5px">Text editor</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+        <!--div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': isGridEnabled }"></ons-icon></ons-toolbar-button></div-->
+    </ons-toolbar>
+
+<div style="margin: 30px 20px">
+<ons-row style="margin:10px 0px">
+    <ons-button modifier="outline" ng-click="setTextStyle('bold'); updateText()" style="margin-right:5px;">Font family: {{curText.family}}<!--ons-icon icon="fa-bold" fixed-width="false"></ons-icon--></ons-button> 
+    <ons-button modifier="outline" ng-click="popoverFontSizes.show($event)" style="margin-right:5px;">{{curText.size}} pts<!--ons-icon icon="ion-android-remove-circle" width="25px" fixed-width="false"></ons-icon> <ons-icon icon="ion-android-add-circle" width="25px" fixed-width="false"></ons-icon--></ons-button>
+
+    <ons-button modifier="outline" ng-click="curText.bold=!curText.bold; updateText()" ng-class="{'btn-pressed': curText.bold }" style="margin-right:5px; width:42px"><ons-icon icon="fa-bold" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.italic=!curText.italic; updateText()" ng-class="{'btn-pressed': curText.italic }" style="margin-right:5px; width:42px"><ons-icon icon="fa-italic" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.underline=!curText.underline; updateText()" ng-class="{'btn-pressed': curText.underline }" style="margin-right:5px; width:42px"><ons-icon icon="fa-underline" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.strikethrough=!curText.strikethrough; updateText()" ng-class="{'btn-pressed': curText.strikethrough }" style="margin-right:5px; width:42px"><ons-icon icon="fa-strikethrough" fixed-width="false"></ons-icon></ons-button>
+</ons-row>
+<ons-row style="margin:10px 0px">
+    <ons-button modifier="outline" ng-click="popupColor($event, curText.foreground);" style="margin-right:5px;">Foreground <ons-button ng-style="{ 'background': curFontForeStyle}" style="border: solid 1px rgba(24,103,194,0.81);"> </ons-button></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="popupColor($event, curText.outline);"  style="margin-right:5px;">Outline <ons-button ng-style="{ 'background': curFontOutlineStyle}" style="border: solid 1px rgba(24,103,194,0.81);"> </ons-button></ons-button>
+    <ons-button modifier="outline" ng-click="popupColor($event, curText.shadow);"  style="margin-right:5px;">Shadow <ons-button ng-style="{ 'background': curFontShadowStyle}" style="border: solid 1px rgba(24,103,194,0.81);"> </ons-button></ons-button>
+    <!--div style="margin-left: 20px"></div><input type="text" style="width:44px; font-size:17px; text-align:center"><div style="margin: 12px 4px 0px"> x</div> <input type="text" style="width: 44px;font-size:17px;text-align:center"-->
+</ons-row>
+<ons-row style="margin:10px 0px">
+    <ons-button modifier="outline" ng-click="curText.align='left'; updateText()" ng-class="{'btn-pressed': curText.align=='left'}" style="margin-right:5px; width:42px"><ons-icon icon="fa-align-left" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.align='center'; updateText()" ng-class="{'btn-pressed': curText.align=='center'}"  style="margin-right:5px; width:42px"><ons-icon icon="fa-align-center" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.align='right'; updateText()" ng-class="{'btn-pressed': curText.align=='right'}"  style="margin-right:5px; width:42px"><ons-icon icon="fa-align-right" fixed-width="false"></ons-icon></ons-button>
+    <ons-button modifier="outline" ng-click="curText.align='justify'; updateText()" ng-class="{'btn-pressed': curText.align=='justify'}"  style="margin-right:5px; width:42px"><ons-icon icon="fa-align-justify" fixed-width="false"></ons-icon></ons-button>
+</ons-row>
+
+  <ons-list modifier="inset" style="margin: 0px">
+    <ons-list-item>
+      <textarea class="textarea textarea--transparent" ng-change="updateText()" ng-model="curText.text" placeholder="Message" style="width: 100%; height: auto; min-height: 120px"></textarea>
+    </ons-list-item>
+
+    <ons-list-item style="height: 300px; background: url('images/alpha.png')">
+        <img ng-src="{{curTextImgSrc}}"style="border: 1px solid gray; margin:auto auto;display:block; max-width: 99%; max-height: 99%">
+    </ons-list-item>
+<!-- ng-src="text/{{curText.imgSrc}}"  -->
+  </ons-list>
+
+</div>
+</ons-page>

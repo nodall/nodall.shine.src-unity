@@ -1,0 +1,43 @@
+<ons-page>
+    <ons-toolbar>
+        <div class="left"><ons-back-button></ons-back-button></div>
+        <div class="center">Nexwarp SP settings</div>
+        <div class="right"><ons-toolbar-button ng-click="doSomething()"><ons-icon icon="ion-ios-grid-view-outline"></ons-icon></ons-toolbar-button></div>
+    </ons-toolbar>
+
+    <ons-row>
+	    <ons-col>
+	    <div style="margin:10px;font-size:20px">
+	    <br>
+	    Edit SpacePlayer settings
+	    </div>
+	    </ons-col>
+    </ons-row>
+    <br>
+    <br>
+    <ons-row>
+    	<ons-col width="120px">
+			<div style="margin:10px">Name</div>
+		</ons-col>
+		<ons-col style="margin-right: 10px">
+			<input class="text-input--underbar" id="my-input" style="width: 100%;" value="{{curDevice.name}}">
+		</ons-col>
+		<ons-col width="10px">
+		</ons-col>
+    </ons-row>
+
+    <ons-row>
+    	<ons-col width="120px">
+			<div style="margin:10px">Description</div>
+		</ons-col>
+		<ons-col style="margin-right: 10px">
+			<input class="text-input--underbar" id="my-input" style="width: 100%;" value="{{curDevice.description}}">
+		</ons-col>
+		<ons-col width="10px">
+		</ons-col>
+    </ons-row>
+
+    <br>
+	<ons-button modifier="large" ng-click="onAddClick()" style="margin:10px">Update info</ons-button>        
+
+</ons-page>

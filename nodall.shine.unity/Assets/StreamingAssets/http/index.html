@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<!-- CSP support mode (required for Windows Universal apps): https://docs.angularjs.org/api/ng/directive/ngCsp -->
+<html lang="en" ng-app="app" ng-csp>
+<head>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- JS dependencies (order matters!) -->
+    <script src="scripts/platformOverrides.js"></script>
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/onsen/js/onsenui.js"></script>
+
+    <!-- CSS dependencies -->
+    <link rel="stylesheet" href="lib/onsen/css/onsenui.css" />
+    <link rel="stylesheet" href="lib/onsen/css/onsen-css-components-blue-basic-theme.css" />
+
+    <!-- CSP support mode (required for Windows Universal apps) -->
+    <link rel="stylesheet" href="lib/angular/angular-csp.css" />
+
+
+    <link rel="stylesheet" href="css/custom.css" />
+
+
+    <!-- easeljs canvas stuff -->
+  <!--script type="text/javascript" src="easeljs-0.7.1.min.js"></script-->
+  <script type="text/javascript" src="js/easeljs-0.8.2.combined.js"></script>
+
+  <script type="text/javascript" src="com/firsara/sys.js"></script>
+  <script type="text/javascript" src="js/TextureRectangle.js"></script>
+  <script type="text/javascript" src="js/Bezier.js"></script>
+  <script type="text/javascript" src="js/Canvas.js"></script>
+
+  <script type="text/javascript" src="js/uniwebview.js"></script>
+  
+  <script type="text/javascript" src="js/colorpicker.js"></script>
+
+
+    <!-- --------------- App init --------------- -->
+
+    <title>Nexwarp SP</title>
+
+    <script>    
+
+  window.beziers = new Object()
+  window.surfaces = []
+  window.layersShapes = new Object()
+  window.layers = []
+
+  var myApp = angular.module('app', ['onsen']);
+
+
+myApp.directive('float', function(){
+    return {
+        require: 'ngModel',
+        link: function(scope, ele, attr, ctrl){
+            ctrl.$parsers.unshift(function(viewValue){
+                return parseFloat(viewValue);
+            });
+        }
+    };
+});
+
+
+    function getIndexOfId(array, id) {
+      for (var i = 0; i < array.length; ++i) {
+        if (array[i]._id == id) return i;
+      }
+      return -1;
+    }
+
+    function filterByParent(array, parentId) {
+      return array.filter(function(obj) { return obj._parent_id == parentId; });
+    }
+
+  /******************    Surface CANVAS     *********************/
+
+
+  /******************    Page CANVAS     *********************/
+
+
+  var globalCurSurface;
+
+
+  myApp.controller('AppController', function ($scope, $rootScope, $http) {
+
+
+    /******  HELPER  *******/
+       
+    $scope.shout = function (msg) {
+        ons.notification.alert({ message: msg });
+    };
+
+    /******  MODEL  *******/
+
+    $scope.db = { };
+
+    $scope.devices = [  
+        /* {
+            UID: "xxx", name: "Local Nexwarp 1", ip: "192.168.1.1", version: "", SO: "Windows 10", isLinked: true
+        },*/
+    ];
+
+    $scope.filesUploading = [];
+
+    $scope.screens = [ "Screen 01", "Screen 02", "Screen 03" ];
+    $scope.surfaces = [ "Surface 01", "Surface 02" ];
+
+    $scope.pages = [ "Page 01", "Page 02", "Page 03", "Page 04" ];
+    $scope.layers = [ "Layer1", "Layer2", "layer3" ];
+
+    $scope.fontSizes = [  12, 14, 16, 20, 24, 32, 36, 48, 60, 80, 100, 120, 160, 180, 220, 250, 300, 350, 500 ];
+
+
+    $scope.curDevice = { name: "Nexwarp" };
+
+    $scope.medias = []
+
+    $scope.isGridEnabled = false
+    $scope.isCropEditor = false
+
+    $scope.curText;
+
+    /** remote methods DB **/
+
+    $scope.goToHome = function() {
+        //$scope.homeNavigator.popPage()
+        //context.disconnectFromDevice()
+        //parent.closeFrame()
+        parent.postMessage('closeFrame', "*")
+    }
+
+    $scope.goToMediaSelector = function() {
+        $scope.homeNavigator.pushPage('media_selector.html')
+    }
+
+    $scope.goToTextEditor = function() {
+        $scope.homeNavigator.pushPage('text_editor.html')
+
+        $scope.curText = $scope.curLayer.text
+
+        if (!$scope.curText) {
+          $scope.curText = { 
+            family: 'Arial', 
+            size: 48, 
+            align: 'center',
+            text: '',
+            foreground: {
+             color: { r: 255, g: 255, b: 255, a: 1 },
+             thickness: 0
+            },
+            outline: {
+             color: { r: 0, g: 0, b: 0, a: 1 },
+             thickness: 0
+            },
+            shadow: {
+             color: { r: 0, g: 0, b: 0, a: 0.5 },
+             thickness: 0,
+             softness: 0,
+             offsetx: 0,
+             offsety: 0
+            }
+          };
+        }
+        $scope.curText.active = true
+        $scope.curLayer.text = $scope.curText
+
+        $scope.curTextImgSrc = 'text/'+ $scope.curLayer._id+'.png?' + new Date().getTime()
+
+        hub.send('layers', 'update', $scope.curLayer)
+
+        $scope.setFontColors()
+    }
+
+    $scope.goToMediaViewer = function(item) {
+        $scope.mediaItem = item
+        $scope.homeNavigator.pushPage('media_viewer.html')
+    }
+
+    $scope.setCurLayerMedia = function(medianame) {
+        $scope.homeNavigator.popPage()
+        $scope.curLayer.filename = medianame
+        if ($scope.curLayer.text)
+          $scope.curLayer.text.active = false;
+        $rootScope.$emit('OnCurLayerMediaChanged', $scope.curLayer)
+        
+        hub.send('layers', 'update', $scope.curLayer)
+    }
+
+    $scope.refreshMedia = function() {
+      hub.send('runtime', 'medias', {})
+    }
+
+    $scope.updateText = function() {
+      //$scope.curLayer.text = $scope.curText
+      console.log("update layers text");
+      hub.send('layers', 'update', $scope.curLayer)
+      //setTimeout(function() { $scope.curTextImgSrc = 'text/'+ $scope.curLayer._id+'.png?' + new Date().getTime(); $scope.$apply() } , 600)
+    }
+
+    $scope.setFontColors = function() {
+      var fs = $scope.curText.foreground.color
+      $scope.curFontForeStyle = 'rgba('+fs.r+','+fs.g+','+fs.b+','+fs.a+')'
+      
+      fs = $scope.curText.outline.color
+      $scope.curFontOutlineStyle = 'rgba('+fs.r+','+fs.g+','+fs.b+','+fs.a+')'
+
+      fs = $scope.curText.shadow.color
+      $scope.curFontShadowStyle = 'rgba('+fs.r+','+fs.g+','+fs.b+','+fs.a+')'
+
+      hub.send('layers', 'update', $scope.curLayer)
+    }
+
+
+    $scope.toggleCropEditor = function() {
+        $scope.isCropEditor = !$scope.isCropEditor
+        window.isCropEditor = $scope.isCropEditor
+        $rootScope.$emit('OnToggleCropEditor', $scope.isCropEditor)
+    }
+
+    $scope.requestPreviewDevice = function(device) {
+        //context.requestPreviewDevice(device.ip)
+    }
+
+    $scope.requestPreviewMedia = function(filename) {
+        console.log("Request preview media "+filename)
+        //context.requestPreviewMedia(filename)
+    }
+
+    $scope.toggleGrid = function() {
+      $scope.db.runtime.isGridEnabled = !$scope.db.runtime.isGridEnabled
+      hub.send('runtime', 'update', $scope.db.runtime)
+    }
+
+    $scope.updateMedias = function(medias) {
+      $scope.medias = medias
+    }
+	
+	$scope.setCurScreen = function(screen) { 
+        console.log("[setCurScreen] "+screen.name)
+        $scope.db.runtime.selectedScreen_id = screen._id;
+        hub.send('runtime', 'update', $scope.db.runtime)
+
+        $scope.curScreen = screen;
+        $scope.surfaces = filterByParent($scope.db.surfaces, screen._id)
+        console.log("surfaces: "+$scope.surfaces);
+        $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+        $scope.setCurSurface($scope.surfaces[0])
+        if ($scope.popoverScreens)
+          $scope.popoverScreens.hide(); 
+    }
+
+	$scope.setCurSurface = function(surface) {
+        console.log("[setCurSurface] "+surface)
+        $scope.curSurface = surface;
+        if ($scope.popoverSurfaces)
+          $scope.popoverSurfaces.hide();
+        $rootScope.$emit('OnCurSurfaceChanged', surface) 
+        window.curSurface = surface
+    }
+
+    $scope.setCurPage = function(page) { 
+        console.log("[setCurPage] "+page.name)
+        $scope.db.runtime.selectedPage_id = page._id;
+        //server.update('/runtime', $scope.db.runtime)
+        hub.send('runtime', 'update', $scope.db.runtime)
+
+        $scope.curPage = page;
+        $scope.layers = filterByParent($scope.db.layers, page._id)
+        window.layers = $scope.layers
+        $rootScope.$emit('OnLayersChanged', $scope.layers)
+        $scope.setCurLayer($scope.layers[0])
+        if ($scope.popoverPages)
+          $scope.popoverPages.hide(); 
+    }
+
+    $scope.setCurLayer = function(layer) {
+        $scope.curLayer = layer; 
+        if ($scope.popoverLayers)
+          $scope.popoverLayers.hide(); 
+        $rootScope.$emit('OnCurLayerChanged', layer) 
+        window.curLayer = layer
+    }
+
+    $scope.setCurSequence = function(seq) {
+        $scope.curSequence = seq; 
+        if ($scope.popoverSequences)
+          $scope.popoverSequences.hide();        
+    }
+
+
+    $scope.setCurDevice = function(device) { 
+        //context.connectToDevice(device.ip)
+        $scope.curDevice = device; 
+    }
+
+
+    /******  ADD AND REMOVE ELEMENTS  *******/
+	
+    $scope.askFor = function(title, callback) {
+        ons.notification.prompt({
+          title: title,
+          message: "  ",
+          modifier: "material",
+          cancelable: true,
+          callback: callback
+       });        
+    }
+
+    $scope.requestDeviceIP = function() {
+        $scope.askFor("Device IP", function(res) { context.connectToDevice(res); homeNavigator.pushPage('mainpage.html'); })
+    }
+
+	$scope.showAddScreen = function() {
+        $scope.askFor("New screen", function(res) { $scope.addScreen(res) });
+	};
+
+    $scope.showAddSurface = function() {
+        $scope.askFor("New surface", function(res) { $scope.addSurface(res) });        
+    };
+
+    $scope.showAddPage = function() {
+        $scope.askFor("New page", function(res) { $scope.addPage(res) });
+    };
+
+    $scope.showAddLayer = function() {
+        $scope.askFor("New layer", function(res) { $scope.addLayer(res) });        
+    };
+
+    $scope.showAddSequence = function() {
+        $scope.askFor("New sequence", function(res) { $scope.addSequence(res) });
+    };
+
+    $scope.addDevice = function(device) {       // called from outside
+        console.log("called $scope.addDevice")
+        if (getObject($scope.devices, "ip", device.ip) == null)
+            $scope.devices.push(device)
+    }
+
+    $scope.addScreen = function(screen) {
+        hub.send('screens', 'create', { name: screen })
+    }
+
+    $scope.addSurface = function(surface) {
+        
+        hub.send('surfaces', 'create', { name: surface, _parent_id: $scope.curScreen._id,       
+          type: "quad",
+          textureRectangle: "0;0;1;1",
+          bezier: ".000000000;.000000000|.333333333;.000000000|.666666667;.000000000|1.000000000;.000000000|.000000000;.333333333|.333333333;.333333333|.666666667;.333333333|1.000000000;.333333333|.000000000;.666666667|.333333333;.666666667|.666666667;.666666667|1.000000000;.666666667|.000000000;1.000000000|.333333333;1.000000000|.666666667;1.000000000|1.000000000;1.000000000|0;0;1;1"                       
+        })
+    }
+
+    $scope.addPage = function(page) {
+        hub.send('pages', 'create', { name : page})
+    }
+
+    $scope.addLayer = function(layer) {
+        hub.send('layers', 'create', 
+          { name: layer, _parent_id: $scope.curPage._id, rectangle: "0;0;1;1", filename:"" })
+    }
+
+    $scope.addSequence = function(name) {
+        hub.send('sequences', 'create', { name: name, seqitems: [] })
+    }
+
+    $scope.addSeqItem = function(name) {
+
+        $scope.curSequence.seqitems.push({ page: $scope.curPage.name, page_id: $scope.curPage._id, duration: "00:00:20.0" })
+        hub.send('sequences', 'update', $scope.curSequence)
+    }    
+
+    $scope.removeCurScreen = function() {
+
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete this screen?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('screens', 'remove', $scope.curScreen)
+          }
+        }
+      });
+
+    }
+	
+    $scope.removeCurSurface = function() {
+
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete this screen?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('surfaces', 'remove', $scope.curSurface)
+          }
+        }
+      });
+
+    }
+
+    $scope.removeCurPage = function() {
+
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete this screen?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('pages', 'remove', $scope.curPage)
+          }
+        }
+      });
+
+    }
+
+    $scope.removeCurLayer = function() {
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete this screen?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('layers', 'remove', $scope.curLayer)
+          }
+        }
+      });
+    }
+
+    $scope.removeCurSequence = function() {
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete this screen?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('sequences', 'remove', $scope.curSequence)
+          }
+        }
+      });
+    }
+
+
+    $scope.removeSeqItem = function(idx) {
+        $scope.curSequence.seqitems.splice(idx, 1)
+        hub.send('sequences', 'update', $scope.curSequence)
+    }    
+
+    $scope.deleteMediaItem = function(item) {
+      ons.notification.confirm({
+        message: 'Are you sure you want to delete '+item.name+'?',
+        modifier: undefined,
+        callback: function(idx) {
+          if (idx == 1) {
+            hub.send('medias', 'remove', { name : item.name })
+            homeNavigator.popPage();
+          }
+        }
+      });
+    }
+
+    /******  OTHER EVENTS  *******/
+	
+    $scope.requestDevices = function() {
+        context.requestDevices();
+    }
+
+    $scope.uploadFiles = function(files) {
+
+      if (!files || files.length < 1) {
+        console.log(" No files to send");
+        return;
+      }
+
+      for (var i = 0; i < files.length; ++i) {
+        $scope.filesUploading.push({
+          name: files[i].name,
+          sent: 0,
+          size: files[i].size 
+        })
+      }
+
+      var curIndexFile = 0
+      var curPositionInFile = 0
+      var filesToSend = files
+      var window_loc = window.location;
+      var ws_url = "ws://" + window_loc.host + window_loc.pathname + "wsfile";
+      var ws_connection = new WebSocket(ws_url);
+
+
+      var sendNextFragment = function() {
+
+        var file = files[curIndexFile]
+
+        if (!file) {
+          console.log("all files sent, closing websocket")
+          ws_connection.close()
+          return
+        }
+
+        console.log("Going to send next fragment of : "+file.name+" curPos "+curPositionInFile + " / " + file.size)
+
+
+        if (curPositionInFile == 0) {
+
+          // send file info at start
+
+          var fileInfoMsg = JSON.stringify({
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            lastModifiedDate: file.lastModifiedDate,
+            packetSize: -1
+          });
+
+          ws_connection.send(fileInfoMsg);
+
+        }
+
+        // send fragment or entire file
+        var fragmentSize = 1000*1000;
+
+        if (curPositionInFile == 0 && file.size <= fragmentSize) {
+
+          // send file entirely
+          ws_connection.send(file)
+
+          console.log("Sent fully "+file.name);
+
+          for (var j=$scope.filesUploading.length-1; j>=0; j--) {
+            if ($scope.filesUploading[j].name == file.name)
+              $scope.filesUploading[j].sent = file.size;
+
+            $scope.$apply();
+          }
+          
+
+            setTimeout(function(fileToDelName) {
+              console.log(" Going to remove "+fileToDelName);
+              for (var j=$scope.filesUploading.length-1; j>=0; j--) {
+                if ($scope.filesUploading[j].name == fileToDelName)
+                  $scope.filesUploading.splice(j, 1);
+              }
+              setTimeout($scope.refreshMedia, 20000);
+              $scope.refreshMedia();
+              $scope.$apply();
+            }, 15000, file.name);
+
+
+          // next file
+          curIndexFile++
+
+        } else {
+
+          // fragment file
+
+          if ((fragmentSize + curPositionInFile) >= file.size) {
+            fragmentSize = file.size - curPositionInFile
+          }
+
+          console.log("   fragmentSize: " + fragmentSize)
+
+          var slice = file.slice(curPositionInFile, curPositionInFile + fragmentSize)
+
+          ws_connection.send(slice)
+
+          curPositionInFile += fragmentSize
+
+          for (var j=$scope.filesUploading.length-1; j>=0; j--) {
+            if ($scope.filesUploading[j].name == file.name) {
+                $scope.filesUploading[j].sent = curPositionInFile;
+                $scope.$apply();
+            }
+          }
+          
+
+          // end of file?, go to next file
+          if (curPositionInFile == file.size) {
+            
+            setTimeout(function(fileToDelName) {
+              console.log(" Going to remove "+fileToDelName);
+              for (var j=$scope.filesUploading.length-1; j>=0; j--) {
+                if ($scope.filesUploading[j].name == fileToDelName)
+                  $scope.filesUploading.splice(j, 1);
+              }
+              setTimeout($scope.refreshMedia, 20000);
+              $scope.refreshMedia();
+              $scope.$apply();
+            }, 15000, file.name);
+
+            curPositionInFile = 0
+            curIndexFile++
+          }
+        }
+      }
+
+
+      ws_connection.onopen = function() {
+        console.log(" [WEBSOCKET-Files] onopen");
+        /*
+        var file = files[0];
+
+        if (file) {
+
+          var fileInfoMsg = JSON.stringify({
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            lastModifiedDate: file.lastModifiedDate,
+            packetSize: -1
+          });
+
+          ws_connection.send(fileInfoMsg);
+          ws_connection.send(file)
+        }
+
+        */
+
+        sendNextFragment()
+      }
+
+      ws_connection.onerror = function() {
+        console.log(" [WEBSOCKET-Files] onerror");
+      }
+
+      ws_connection.onclose = function() {
+        console.log(" [WEBSOCKET-Files] onclose");
+      }
+
+      ws_connection.onmessage = function(event) {
+        console.log(" [WEBSOCKET-Files] onmessage: "+event.data);
+        sendNextFragment();
+      }
+
+    }
+
+
+    /******  POPUPS  *******/
+
+	ons.createPopover('popovers/popover_screens.html').then(function(popover) {
+	    $scope.popoverScreens = popover;
+	  });	
+
+	ons.createPopover('popovers/popover_surfaces.html').then(function(popover) {
+	    $scope.popoverSurfaces = popover;
+	  });
+
+    ons.createPopover('popovers/popover_pages.html').then(function(popover) {
+        $scope.popoverPages = popover;
+    });   
+
+    ons.createPopover('popovers/popover_layers.html').then(function(popover) {
+        $scope.popoverLayers = popover;
+    });
+
+    ons.createPopover('popovers/popover_bezier.html').then(function(popover) {
+        $scope.popoverBezier = popover;
+    });
+
+    ons.createPopover('popovers/popover_sequences.html').then(function(popover) {
+        $scope.popoverSequences = popover;
+    });
+
+    ons.createPopover('popovers/popover_seq_pages.html').then(function(popover) {
+        popover.setCurIndex = function(idx) {
+            this.curIndex = idx
+        }
+        $scope.popoverSeqPages = popover;
+    });
+
+    ons.createPopover('popovers/popover_seq_duration.html').then(function(popover) {
+        popover.setDuration = function(duration) {
+            this.duration = duration
+        }
+        popover.setCurIndex = function(idx) {
+            this.curIndex = idx
+        }
+        popover.confirmDuration = function() {
+            // TODO: check that duration is OK
+            var split = this.duration.split(/:|\./)
+            console.log(split)
+            for (var i = 0; i < split.length; ++i) if (!/^\d+$/.test(split[i])) return;
+            $scope.curSequence.seqitems[this.curIndex].duration = this.duration;
+        }
+
+        $scope.popoverSeqDuration = popover;
+    });
+
+
+    ons.createPopover('popovers/popover_font_sizes.html').then(function(popover) {
+        $scope.popoverFontSizes = popover;
+    });
+
+    ons.createPopover('popovers/popover_color_picker.html').then(function(popover) {
+        $scope.popoverColorPicker = popover;
+        ColorPickerTool.init();
+        UIColorPicker.subscribe('picker', function(color) { console.log("PICKER"); console.log(color); 
+          if ($scope.curTextProperty) {
+           $scope.curTextProperty.color = { r: color.r, g: color.g, b: color.b, a: color.a };
+           $scope.setFontColors();
+          }
+        });
+        UIColorPicker.setColor('picker', UIColorPicker.RGBAColor(250, 0.5, 1, 0.2))
+    });
+
+
+    $scope.popupColor = function(event, prop) {
+
+      $scope.curTextProperty = prop
+      var col = prop.color
+
+      console.log(prop)
+
+      UIColorPicker.setColor('picker', UIColorPicker.RGBAColor(col.r, col.g, col.b, col.a))
+      $scope.popoverColorPicker.show(event)
+      UIColorPicker.setColor('picker', UIColorPicker.RGBAColor(col.r, col.g, col.b, col.a))
+    }
+
+
+
+    $scope.setCurBezier = function(type) {
+        $scope.curSurface.type = type
+        hub.send('surfaces', 'update', $scope.curSurface)
+
+        $scope.popoverBezier.hide()
+    }
+
+
+    $scope.renameCurScreen = function() {
+        $scope.dialogEdit.showDialog("Screen", 'screens', $scope.curScreen, $scope.screens, $scope.db.screens)
+    }
+
+    $scope.renameCurSurface = function() {
+        $scope.dialogEdit.showDialog("Surface", 'surfaces', $scope.curSurface, $scope.surfaces, $scope.db.surfaces)
+    }
+
+    $scope.renameCurPage = function() {
+        $scope.dialogEdit.showDialog("Page", 'pages', $scope.curPage, $scope.pages, $scope.db.pages)
+    }
+
+    $scope.renameCurLayer = function() {
+        $scope.dialogEdit.showDialog("Layer", 'layers', $scope.curLayer, $scope.layers, $scope.db.layers)
+    }
+
+    $scope.renameCurSequence = function() {
+        $scope.dialogEdit.showDialog("Sequence", 'sequences', $scope.curSequence, $scope.db.sequences, $scope.db.sequences)
+    }
+
+    $scope.setPageInCurSeqItem = function(page) {
+        $scope.curSequence.seqitems[$scope.popoverSeqPages.curIndex].page = page.name
+        $scope.curSequence.seqitems[$scope.popoverSeqPages.curIndex].page_id = page._id
+        $scope.popoverSeqPages.hide()
+    }
+
+    /******  DIALOGS  *******/	  
+
+  ons.createDialog("dialog_edit.html").then(function(dialog) {
+    $scope.dialogEdit = dialog;
+
+    $scope.dialogEdit.curPosition = 0
+    $scope.dialogEdit.numPositions = 0
+
+    $scope.dialogEdit.showDialog = function(desc, channel, item, listOfItems, srcListOfItem) {
+
+      this.property = desc
+      this.curItem = item
+      this.channel = channel
+      this.listItems = listOfItems
+      this.sourceList = srcListOfItem
+      
+      this.name = this.curItem.name
+      this.curPosition = this.listItems.indexOf(this.curItem)
+      this.numPositions = this.listItems.length
+
+      this.updateButtons()
+      this.show()
+    }
+
+    $scope.dialogEdit.updateButtons = function() {
+      this.isUpDisabled = this.curPosition == 0
+      this.isDownDisabled = this.curPosition >= this.numPositions - 1
+    }
+
+    $scope.dialogEdit.upButton = function() {
+      --this.curPosition
+      this.updateButtons()
+    }
+    
+    $scope.dialogEdit.downButton = function() {
+      ++this.curPosition
+      this.updateButtons()
+    }
+
+    $scope.dialogEdit.accept = function() {
+      console.log("Accepting changes");
+
+      this.curItem.name = this.name
+
+      // swap positions
+      var lastPos = this.listItems.indexOf(this.curItem)
+      var newPosItem = this.listItems[this.curPosition]
+
+      console.log("curPos "+ this.curPosition + " lastPos " + lastPos)
+      console.log("NPI "+ newPosItem)
+
+      // reorder items
+      if (lastPos != this.curPosition) {
+        // reorder this list
+        if (this.listItems != this.sourceList)
+          this.listItems.splice(this.curPosition, 0, this.listItems.splice(lastPos, 1)[0]);
+
+        // reorder in $scope.db
+        var srcCurPos = this.sourceList.indexOf(newPosItem)
+        var srcLastPos = this.sourceList.indexOf(this.curItem)
+        console.log("SRC: curPos "+ srcCurPos + " lastPos " + srcLastPos)
+
+        this.sourceList.splice(srcCurPos, 0, this.sourceList.splice(srcLastPos, 1)[0]);
+
+        // notify of change of order
+        hub.send(this.channel, 'updateAll', { array: this.sourceList } )
+        
+      }
+
+      // notify of change of name
+      hub.send(this.channel, 'update', this.curItem)
+
+      $scope.dialogEdit.hide()
+    }
+
+  });    
+
+
+  ons.createDialog("dialog_addsurface.html").then(function(dialog) {
+    $scope.dialogAddSurface = dialog;
+  });    
+	  
+	ons.createDialog("dialog_add_media.html").then(function(dialog) {
+		$scope.dialogAddMedia = dialog;
+    document.getElementById('files').addEventListener('change', function(evt) {
+        console.log('files selected');
+        console.log(evt.target.files)
+        $scope.filesToUpload = evt.target.files
+
+        //$scope.uploadFiles($scope.filesToUpload);
+    }, false);
+	});
+
+
+    var execute = function(func, param) {
+        $scope[func](param);
+        $scope.$apply();
+    };
+
+  var executeFromRemote = function(param) {
+    console.log("[executeFromRemote] "+JSON.stringify(param))
+    $scope[param.action](param.route, param.data);
+    $scope.$apply();
+    console.log("[executeFromRemote] applied");
+  };
+
+
+	var shout = function (msg) {
+		$scope.shout(msg);
+	};
+
+
+  //context.ajax = $http;	
+	window.shout = shout;
+  window.execute = execute;
+  window.executeFromRemote = executeFromRemote;
+
+      //setCurDevice(device);
+      /*
+      setTimeout(function() {
+          $scope.homeNavigator.pushPage('mainpage.html');
+          //context.requestDB();
+      }, 100);*/
+
+
+  var hub = new MessageHub(ws_url)
+  window.hub = hub
+
+  hub.subscribe('runtime')
+    .on('db', function(data) {
+
+      $scope.db = data
+      $scope.isGridEnabled = $scope.db.runtime.isGridEnabled == 'true'
+
+      $scope.screens = $scope.db.screens
+      $scope.pages = $scope.db.pages
+
+      console.log('Screens: ' +JSON.stringify($scope.screens))
+      console.log('Pages: ' +JSON.stringify($scope.pages))
+
+      var curScrIdx = getIndexOfId($scope.screens, $scope.db.runtime.selectedScreen_id)
+      var curPageIdx = getIndexOfId($scope.pages, $scope.db.runtime.selectedPage_id)
+
+      if (curScrIdx < 0)  curScrIdx = 0;
+      if (curPageIdx < 0) curPageIdx = 0;
+
+
+      var curScr = $scope.db.screens[curScrIdx];
+      var curPage = $scope.db.pages[curPageIdx];
+
+      $scope.setCurScreen(curScr)
+      $scope.setCurPage(curPage)
+
+      $scope.setCurSequence($scope.db.sequences[0])
+
+      console.log("Cur SCREEN:"+JSON.stringify($scope.curScreen))
+      console.log("Cur SURFACE:"+JSON.stringify($scope.curSurface))
+      console.log("Cur PAGE:"+JSON.stringify($scope.curPage))
+      console.log("Cur LAYER:"+JSON.stringify($scope.curLayer))
+
+      $scope.$apply()
+
+      setTimeout(function() { $scope.setCurScreen(curScr), $scope.$apply() }, 600)
+
+    })
+    .on('medias', function(data) {
+
+      $scope.db.medias = data
+      $scope.$apply()
+
+    })
+    .on('textupdate', function(data) {
+
+      $scope.curTextImgSrc = 'text/'+ $scope.curLayer._id+'.png?' + new Date().getTime()
+      $scope.$apply()
+
+    });
+
+
+  hub.subscribe('screens')
+    .on('create', function(obj) {
+        $scope.db.screens.push(obj)
+        $scope.screens = $scope.db.screens
+        $scope.setCurScreen(obj)
+
+        $scope.$apply()
+    })
+    .on('update', function(obj) {
+    })
+    .on('remove', function(obj) {
+        // remove screen
+        var idx = getIndexOfId($scope.db.screens, obj._id)
+        $scope.db.screens.splice(idx, 1)
+        $scope.screens = $scope.db.screens
+
+        // remove associated surfaces
+
+        // update curScreen
+        var newSel = $scope.screens[idx]
+        if (newSel === undefined) newSel = $scope.screens[idx - 1]
+        $scope.setCurScreen(newSel)
+
+        $scope.$apply()
+    });
+
+  hub.subscribe('surfaces')
+    .on('create', function(obj) {
+        $scope.db.surfaces.push(obj)
+        $scope.surfaces = filterByParent($scope.db.surfaces, $scope.curScreen._id)
+        $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+        $scope.setCurSurface(obj)
+
+        $scope.$apply()
+    })
+    .on('update', function(obj) {
+      console.log("should update surface:");
+      console.log(obj)
+      console.log($scope.db.surfaces)
+
+        var idx = $scope.db.surfaces.indexOf($scope.curSurface)
+        //$scope.db.surfaces[idx] = obj
+        $scope.curSurface.bezier = obj.bezier
+        $scope.curSurface.textureRectangle = obj.textureRectangle
+        $scope.surfaces = filterByParent($scope.db.surfaces, $scope.curScreen._id)
+        $rootScope.$emit('OnCurSurfaceChanged', $scope.curSurface)
+
+    })
+    .on('remove', function(obj) {
+        // remove surface
+        var idx = getIndexOfId($scope.db.surfaces, obj._id)
+        $scope.db.surfaces.splice(idx, 1)
+
+        // select cur Surface
+        idx = getIndexOfId($scope.surfaces, obj._id)
+        $scope.surfaces = filterByParent($scope.db.surfaces, $scope.curScreen._id)
+
+        var newSel = $scope.surfaces[idx]
+        if (newSel === undefined) newSel = $scope.surfaces[idx - 1]
+
+        $rootScope.$emit('OnSurfacesChanged', $scope.surfaces)
+        $scope.setCurSurface(newSel)
+        $scope.$apply()
+    });
+
+  hub.subscribe('pages')
+    .on('create', function(obj) {
+        $scope.db.pages.push(obj)
+        $scope.setCurPage(obj)
+
+        $scope.$apply()
+    })
+    .on('update', function(obj) {
+    })
+    .on('remove', function(obj) {
+        // remove screen
+        var idx = getIndexOfId($scope.db.pages, obj._id)
+        $scope.db.pages.splice(idx, 1)
+        $scope.pages = $scope.db.pages
+
+        // remove associated layers
+
+        // update curScreen
+        var newSel = $scope.pages[idx]
+        if (newSel === undefined) newSel = $scope.pages[idx - 1]
+        $scope.setCurPage(newSel)
+
+        $scope.$apply()
+    });
+
+  hub.subscribe('layers')
+    .on('create', function(obj) {
+        $scope.db.layers.push(obj)
+        $scope.layers = filterByParent($scope.db.layers, $scope.curPage._id)
+        window.layers = $scope.layers
+        $rootScope.$emit('OnLayersChanged', $scope.layers)
+        $scope.setCurLayer(obj)
+
+        $scope.$apply()
+    })
+    .on('update', function(obj) {
+    })
+    .on('remove', function(obj) {
+        // remove layer
+        var idx = getIndexOfId($scope.db.layers, obj._id)
+        $scope.db.layers.splice(idx, 1)
+
+        // update curLayer
+        idx = getIndexOfId($scope.layers, obj._id)
+        $scope.layers = filterByParent($scope.db.layers, $scope.curPage._id)
+        window.layers = $scope.layers
+
+        var newSel = $scope.layers[idx]
+        if (newSel === undefined) newSel = $scope.layers[idx - 1]
+
+        $rootScope.$emit('OnLayersChanged', $scope.layers)
+        $scope.setCurLayer(newSel)
+
+        $scope.$apply()
+    });
+
+
+    hub.subscribe('sequences')
+        .on('create', function(obj) {
+            $scope.db.sequences.push(obj)
+            $scope.setCurSequence(obj)
+
+            $scope.$apply()
+        })
+        .on('update', function(obj) {
+        })
+        .on('remove', function(obj) {
+            // remove seq
+            var idx = getIndexOfId($scope.db.sequences, obj._id)
+            $scope.db.sequences.splice(idx, 1)
+
+            // update curSeq
+            var newSel = $scope.db.sequences[idx]
+            if (newSel === undefined) newSel = $scope.db.sequences[idx - 1]
+            $scope.setCurSequence(newSel)
+
+            $scope.$apply()
+        });    
+
+  });
+
+
+window.hasInitedBefore = false;
+
+window.tryInit = function() {
+  if (window.hasInitedBefore) return;
+  if (window.hub.isOpen) {
+      window.hub.send('runtime', 'db', {})
+  } else {
+      setTimeout(function() {
+        window.hub.send('runtime', 'db', {})
+      }, 1380);
+  }
+  hasInitedBefore = true;
+};
+
+    </script>
+
+
+  <script type="text/javascript" src="js/SurfaceCanvas.js"></script>
+  <script type="text/javascript" src="js/PageCanvas.js"></script>
+
+    <style>
+
+    </style>
+
+</head>
+
+<body ng-controller="AppController">
+    <!-- Cordova reference 
+    <script src="cordova.js"></script>
+    <script src="scripts/index.js"></script>
+    -->
+
+<ons-navigator var="homeNavigator" page="mainpage.html">
+</ons-navigator>
+
+
+</body>
+</html>

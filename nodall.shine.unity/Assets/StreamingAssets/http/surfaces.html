@@ -1,0 +1,76 @@
+<ons-page var="surfacePage">
+
+	<ons-toolbar>
+	    		<div class="left"><ons-toolbar-button ng-click="goToHome()"><ons-icon icon="ion-home"></ons-icon></ons-toolbar-button></div>
+                <!--div class="center" style="font-size:25px"><div>Surfaces</div><span style="font-size:10px">{{curDevice.name}}</div-->
+                <div class="center" style="font-size:20px"><div style="margin-top:-5px">Surfaces</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+                <div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': db.runtime.isGridEnabled }"></ons-icon></ons-toolbar-button></div>
+            </ons-toolbar>
+
+            <ons-row class="profile-wrapper">
+            </ons-row>
+
+
+	<ons-row>
+		<ons-col width="10px"></ons-col>
+		<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Layouts</div></ons-col>
+
+		<ons-col width="32px" style="margin-left: 5px">
+		<ons-button modifier="quiet" ng-click="showAddScreen()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="32px" style="margin-left: 1px; margin-right: 15px">
+		<ons-button modifier="quiet" ng-click="removeCurScreen()" ng-disabled="screens.length <= 1"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+
+		<ons-col width="180px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverScreens.show($event);">{{curScreen.name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="renameCurScreen()"><ons-icon icon="ion-edit" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="10px"></ons-col>
+	</ons-row>
+
+	<ons-row style="margin-top:15px">
+		<ons-col width="10px"></ons-col>
+		<ons-col width="90px"><div style="margin-top:10px;font-size:20px">Surfaces</div></ons-col>
+
+
+		<ons-col width="32px" style="margin-left: 5px">
+		<ons-button modifier="quiet" ng-click="showAddSurface()"><ons-icon icon="ion-plus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+		<ons-col width="32px" style="margin-left: 1px; margin-right: 15px">
+		<ons-button modifier="quiet" ng-click="removeCurSurface()" ng-disabled="surfaces.length <= 1"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+
+		<ons-col width="180px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverSurfaces.show($event)">{{curSurface.name}}<span style="margin: 10px"></span><ons-icon icon="ion-chevron-down" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="renameCurSurface()"><ons-icon icon="ion-edit" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+		<ons-col width="46px" style="margin-left: 10px">
+		<ons-button modifier="large outline" ng-click="popoverBezier.show($event)"><span ng-show="curSurface.type == 'quad'"><img src="images/icon-quad.png" width="30px" height="30px" style="margin:3px 0px -10px -5px" alt="Q" /></span><span ng-show="curSurface.type == 'perspective'"><img src="images/icon-perspective.png" width="30px" height="30px" style="margin:3px 0px -10px -5px" alt="P" /></span><span ng-show="curSurface.type == 'free'"><img src="images/icon-bezier.png" width="30px" height="30px" style="margin:3px 0px -10px -5px" alt="F" /></span></ons-button>
+		</ons-col>
+
+		<ons-col></ons-col>
+		<ons-col width="46px" style="margin-right:10px">
+		<ons-button modifier="large outline" ng-click="toggleCropEditor()" ng-class="{'btn-pressed': isCropEditor }"><ons-icon icon="ion-crop" size="25px" fixed-width="false"></ons-icon></ons-button>
+		</ons-col>
+
+	</ons-row>
+
+    <div class="settings-header">Surface editor</div>
+	    
+	<ons-row>
+	    <canvas id="surfaceCanvas" style="background-color:#ccc; width:100%; height:50%;margin: 10px" ng-controller="SurfaceCanvasController">
+	    </canvas>
+	</ons-row>
+    <br>
+</ons-page>

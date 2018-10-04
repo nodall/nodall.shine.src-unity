@@ -1,0 +1,78 @@
+[
+    {
+        "name": "none",
+        "displayName": "None",
+        "props": null
+    },
+    {
+        "name": "keep",
+        "displayName": "Keep",
+        "props": null
+    },
+    {
+        "name": "MatFadeTexGridFX",
+        "displayName": "Grid",
+        "props": [
+            {
+                "name": "_GridStep",
+                "displayName": "Grid size",
+                "type": "float(0, 10, 0)",
+                "value": "3"
+            }
+        ]
+    },
+    {
+        "name": "MatFadeTexColorFX",
+        "displayName": "Color",
+        "props": [
+            {
+                "name": "_Hue",
+                "displayName": "Hue",
+                "type": "float(0, 360, 360)",
+                "value": "0"
+            },
+            {
+                "name": "_Saturation",
+                "displayName": "Saturation",
+                "type": "float(0, 2, 0)",
+                "value": "1"
+            },
+            {
+                "name": "_Brightness",
+                "displayName": "Brightness",
+                "type": "float(-1, 1, 0)",
+                "value": "0"
+            },
+            {
+                "name": "_Contrast",
+                "displayName": "Contrast",
+                "type": "float(0, 2, 0)",
+                "value": "1"
+            }
+        ]
+    },
+    {
+        "name": "MatFadeTexDuoFX",
+        "displayName": "Duo",
+        "props": [
+            {
+                "name": "_FadeFX",
+                "displayName": "Fade FX",
+                "type": "float(0, 1, 0)",
+                "value": "1"
+            },
+            {
+                "name": "_BlackColor",
+                "displayName": "Black Color",
+                "type": "rgba",
+                "value": "#000f"
+            },
+            {
+                "name": "_WhiteColor",
+                "displayName": "White Color",
+                "type": "rgba",
+                "value": "#0fff"
+            }
+        ]
+    }
+]

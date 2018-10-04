@@ -1,0 +1,26 @@
+<ons-page>
+    <ons-toolbar>
+        <div class="left"><ons-back-button></ons-back-button></div>
+        <div class="center" style="font-size:20px"><div style="margin-top:-5px">Media Viewer</div><div style="font-size:10px;margin-top:-26px;color:#777">{{curDevice.name}}</div></div>
+        <!--div class="right"><ons-toolbar-button ng-click="toggleGrid()"><ons-icon icon="ion-ios-grid-view-outline" ng-class="{'btn-pressed': isGridEnabled }"></ons-icon></ons-toolbar-button></div-->
+    </ons-toolbar>
+
+<div style="margin: 30px 20px">
+<ons-row>
+    <ons-col width="300px" ng-click="">         
+        <img src="previews/{{mediaItem.name}}.jpg" style="width: 290px; -webkit-border-radius:15px"/>
+    </ons-col>
+    <ons-col ng-click="requestPreviewMedia(mediaItem.name)">
+    <div style="margin: 20px">
+        <ons-icon icon="ion-eye" size="50px" fixed-width="false"></ons-icon><br/><br/>
+        <span style="font-size:20px">{{mediaItem.name}}</span><br/>
+        {{mediaItem.duration}}<br/>
+        {{(mediaItem.size/(1024*1024)).toFixed(1)}} MB<br/>
+        {{mediaItem.resolution}}<br/>
+        <ons-button ng-click="deleteMediaItem(mediaItem)"><ons-icon icon="ion-minus-circled" size="25px" fixed-width="false" style="margin:4px"></ons-icon><span style="margin:4px"> Delete media</span></ons-button>
+    </div>
+    </ons-col>
+</ons-row>
+
+</div>
+</ons-page>
