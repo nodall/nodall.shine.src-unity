@@ -1,7 +1,7 @@
 {
 	"NWCore": {
 		"wsClient": {
-			"url": "ws://localhost:7000/wsapi",
+			"url": "ws://localhost:10500/wsapi",
 			"connectionData": {
 				"type": "unity",
 				"uid": "unity"
