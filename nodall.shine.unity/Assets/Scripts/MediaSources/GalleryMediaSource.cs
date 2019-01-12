@@ -12,7 +12,7 @@ using System;
 
 public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetState
 {
-    int wwwPort = 7000;
+    int wwwPort = 10500;
 
     public static GalleryMediaSource Instance;
 
@@ -405,7 +405,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
             Debug.LogWarning("[GalleryMedia] Sending images: " + img);
             var imgId = img.Substring(img.LastIndexOf("/www/") + "/www".Length);
 
-            array.Add("http://"+NetworkScript.Instance.GetLocalIp()+":7000"+ imgId);
+            array.Add("http://"+NetworkScript.Instance.GetLocalIp() + ":" + wwwPort + imgId);
         }
 
         data.Add("list", array);

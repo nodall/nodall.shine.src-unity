@@ -453,6 +453,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
         NWCoreBase.hub.Subscribe("unity")
 
             .On("play", msg => {
+                Debug.Log("play " + msg.Value<string>("view"));
                 Play(msg.Value<int>("layer"),
                        msg.Value<string>("view"),
                        msg["args"] == null || msg["args"].Type == JTokenType.Null ? null : msg["args"],
