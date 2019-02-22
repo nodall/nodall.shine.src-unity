@@ -3,11 +3,11 @@
 		"wsClient": {
 			"url": "ws://localhost:10500/wsapi",
 			"connectionData": {
-				"type": "unity",
-				"uid": "unity"
+				"type": "render.engine",
+				"uid": "render.engine"
 			},
-			"hubChannel": "unity",
-			"restChannel": "unity"
+			"hubChannel": "render.engine",
+			"restChannel": "render.engine"
 		},
 		"wwwFolders": "c:/nodall.shine/www/",
 		"window": {
