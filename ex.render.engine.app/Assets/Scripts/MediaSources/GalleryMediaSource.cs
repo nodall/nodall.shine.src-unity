@@ -176,7 +176,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
 
         //Debug.Log("UploadPhotos tex: " + AppSettingsScript.Instance.MediasFolder + "/app-photos/upload-photos.png");
         uploadPhotosTexture = new Texture2D(4, 4);
-        uploadPhotosTexture.LoadImage(File.ReadAllBytes(AppSettingsScript.Instance.WWWFolder + "/unity/img/upload-photos.png"));
+        uploadPhotosTexture.LoadImage(File.ReadAllBytes(AppSettingsScript.Instance.AssetsFolder + "/img/upload-photos.png"));
 
         canvas.transform.Find("_upload_photos").GetComponent<RawImage>().texture = uploadPhotosTexture;
 

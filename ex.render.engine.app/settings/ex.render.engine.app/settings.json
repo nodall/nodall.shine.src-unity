@@ -9,7 +9,7 @@
 			"hubChannel": "render.engine",
 			"restChannel": "render.engine"
 		},
-		"wwwFolders": "c:/nodall.shine/www/",
+		"wwwFolders": "c:/nodall.shine/storage/public/",
 		"window": {
 			"x": 1920,
 			"y": 0,
@@ -26,10 +26,10 @@
 			"height": 1080
 		},
 		"Folders": {
-			"www": "c:/nodall.shine/www/",
-			"sessions": "c:/nodall.shine/www/sessions/",
-			"assets": "c:/nodall.shine/medias/node/nodall.shine.node/",
-			"medias": "c:/nodall.shine/medias/node/nodall.shine.node/medias/"
+			"www": "c:/nodall.shine/storage/public/",
+			"sessions": "c:/nodall.shine/storage/internal/sessions/",
+			"assets": "c:/nodall.shine/storage/internal/render.engine/",
+			"medias": "c:/nodall.shine/storage/internal/render.engine/medias/"
 		}
 	}
 }
