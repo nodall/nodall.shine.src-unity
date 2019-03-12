@@ -450,7 +450,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
 
     void RegisterMethods()
     {
-        NWCoreBase.hub.Subscribe("unity")
+        NWCoreBase.hub.Subscribe(NWCore.instance.nwCoreSettings.wsClient.hubChannel)
 
             .On("play", msg => {
                 Debug.Log("play " + msg.Value<string>("view"));
@@ -521,7 +521,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
 
         mediaGallery = FindObjectOfType<GalleryMediaSource>();
 
-        NWCoreBase.rest.Define("unity").On("getState", "getState of shine unity", (msg) => new RestResponse(state));
+        NWCoreBase.rest.Define(NWCore.instance.nwCoreSettings.wsClient.restChannel).On("getState", "getState of shine unity", (msg) => new RestResponse(state));
     }
 
     public new void Start()
