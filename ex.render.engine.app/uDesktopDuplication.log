@@ -1,11 +1,11 @@
-[uDD::Log][2019-03-12 18:07:56] Start
-[uDD::Log][2019-03-12 18:07:56] Monitor::Initialize() => OK.
-[uDD::Log][2019-03-12 18:07:56]     ID    : 0
-[uDD::Log][2019-03-12 18:07:56]     Size  : (1680, 1050)
-[uDD::Log][2019-03-12 18:07:56]     DPI   : (90, 90)
-[uDD::Log][2019-03-12 18:07:56]     Rot   : Landscape
-[uDD::Log][2019-03-12 18:07:56] Monitor::Initialize() => OK.
-[uDD::Log][2019-03-12 18:07:56]     ID    : 1
-[uDD::Log][2019-03-12 18:07:56]     Size  : (1680, 1050)
-[uDD::Log][2019-03-12 18:07:56]     DPI   : (90, 90)
-[uDD::Log][2019-03-12 18:07:56]     Rot   : Landscape
+[uDD::Log][2019-03-13 15:46:19] Start
+[uDD::Log][2019-03-13 15:46:19] Monitor::Initialize() => OK.
+[uDD::Log][2019-03-13 15:46:19]     ID    : 0
+[uDD::Log][2019-03-13 15:46:19]     Size  : (1680, 1050)
+[uDD::Log][2019-03-13 15:46:19]     DPI   : (90, 90)
+[uDD::Log][2019-03-13 15:46:19]     Rot   : Landscape
+[uDD::Log][2019-03-13 15:46:19] Monitor::Initialize() => OK.
+[uDD::Log][2019-03-13 15:46:19]     ID    : 1
+[uDD::Log][2019-03-13 15:46:19]     Size  : (1680, 1050)
+[uDD::Log][2019-03-13 15:46:19]     DPI   : (90, 90)
+[uDD::Log][2019-03-13 15:46:19]     Rot   : Landscape

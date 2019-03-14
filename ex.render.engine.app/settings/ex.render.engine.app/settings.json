@@ -27,9 +27,9 @@
 		},
 		"Folders": {
 			"www": "c:/nodall.shine/storage/public/",
-			"sessions": "c:/nodall.shine/storage/internal/sessions/",
-			"assets": "c:/nodall.shine/storage/internal/render.engine/",
-			"medias": "c:/nodall.shine/storage/internal/render.engine/medias/"
+			"sessions": "c:/nodall.shine/storage/public/sessions/",
+			"assets": "c:/nodall.shine/storage/public/ex.render.engine/",
+			"medias": "c:/nodall.shine/storage/public/ex.render.engine/medias/"
 		}
 	}
 }

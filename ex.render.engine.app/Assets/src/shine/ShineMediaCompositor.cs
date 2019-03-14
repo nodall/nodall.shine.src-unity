@@ -174,6 +174,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
                 return colors;
             case "gallery":
                 var imagesPath = Path.Combine(GetPathFromLocation(location), args["src"].ToString());
+                Debug.Log("--------" + imagesPath);
                 var gallery = FindObjectOfType<GalleryMediaSource>();
                 gallery.imagesFolder = imagesPath;
                 gallery.GalleryOpen();

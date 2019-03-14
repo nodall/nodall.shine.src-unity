@@ -403,7 +403,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
         foreach (var img in allImages)
         {
             Debug.LogWarning("[GalleryMedia] Sending images: " + img);
-            var imgId = img.Substring(img.LastIndexOf("/www/") + "/www".Length);
+            var imgId = img.Replace(AppSettingsScript.Instance.WWWFolder, "/");
 
             array.Add("http://"+NetworkScript.Instance.GetLocalIp() + ":" + wwwPort + imgId);
         }
@@ -744,7 +744,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
         }
         yield return null;
     }
-
+    
     IEnumerator CoReboundCameraTo(float camFov)
     {
         var camera = GetComponentInChildren<Camera>();
