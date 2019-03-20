@@ -157,7 +157,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
             });
 
 
-        hub.Subscribe("fileupload")
+        hub.Subscribe(AppSettingsScript.Instance.FileuploadInstanceName)
             .On("onFileUploaded", (msg) =>
             {
                 GalleryEnqueueImage(msg["path"].ToString());

@@ -2,6 +2,7 @@
 using System.Collections;
 using nexcode.nwcore;
 using Newtonsoft.Json.Linq;
+using Components;
 
 namespace Shine.Apps
 {
@@ -73,7 +74,7 @@ namespace Shine.Apps
                 });
 
 
-            hub.Subscribe("fileupload")
+            hub.Subscribe(AppSettingsScript.Instance.FileuploadInstanceName)
                 .On("onFileUploaded", (msg) =>
                 {
                     view.GalleryEnqueueImage(msg["path"].ToString());

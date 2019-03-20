@@ -19,6 +19,9 @@
 		}
 	},
 	"Shine": {
+		"dependencies": {
+			"fileupload": "api.storage.fileupload"
+		},
 		"MediaCompositor": {
 			"desktopDuplicationMonitorId": 0,
 			"transitionSeconds": 1,

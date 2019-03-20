@@ -32,9 +32,9 @@ namespace nexcode.nwcore
         {
             try
             {
-                var fullPath = @"..\settings\" + Application.productName + @"\settings.json";
+                var fullPath = @"..\..\settings\" + Application.productName + @"\settings.json";
                 if (Application.isEditor)
-                    fullPath = @".\settings\" + Application.productName + @"\settings.json";
+                    fullPath = @".\" + @"\settings.json";
 
                 appSettingsPath = Path.GetFullPath(fullPath);
 

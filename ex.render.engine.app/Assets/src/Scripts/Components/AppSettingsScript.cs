@@ -19,6 +19,7 @@ namespace Components
         public string AssetsFolder { get { return Root["Shine"]["Folders"].Value<string>("assets"); } }
         public string MediasFolder { get { return Root["Shine"]["Folders"].Value<string>("medias"); } }
         public string WebAppsFolder { get { return AssetsFolder + "webapps/"; } }
+        public string FileuploadInstanceName { get { return Root["Shine"]["dependencies"].Value<string>("fileupload"); } }
         #endregion
 
         #region [ public  methods]
