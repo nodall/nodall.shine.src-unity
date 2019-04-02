@@ -170,7 +170,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
                 var colors = ColorsView.Instance;
                 Debug.Log(args);
                 colors.PlayColors(args.ToObject<UnityColorsArgs>());
-                colors.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish("unity", "onMediaEnd", new { layerIndex = layer, layer = state }); });
+                colors.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish(NWCore.instance.nwCoreSettings.wsClient.hubChannel, "onMediaEnd", new { layerIndex = layer, layer = state }); });
                 return colors;
             case "gallery":
                 var imagesPath = Path.Combine(GetPathFromLocation(location), args["src"].ToString());
@@ -222,7 +222,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
                 video.SetProp("isLoop", loop);
                 video.SetProp("url", videoUrl);
                 video.Play();
-                video.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish("unity", "onMediaEnd", new { layerIndex = layer, layer = state }); });
+                video.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish(NWCore.instance.nwCoreSettings.wsClient.hubChannel, "onMediaEnd", new { layerIndex = layer, layer = state }); });
                 return video;
             case "image":
                 var imgUrl = Path.Combine(GetPathFromLocation(location), args["src"].ToString());
@@ -231,7 +231,7 @@ public class ShineMediaCompositor : LayerMediaCompositor
                 var audioUrl = Path.Combine(GetPathFromLocation(location), args["src"].ToString());
                 var audioLoop = args["loop"] != null && args.Value<bool>("loop");
                 var mediaAudio = ComponentManager.New<MediaAudio>(new MediaAudioProps { url = audioUrl, isLoop = audioLoop });
-                mediaAudio.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish("unity", "onMediaEnd", new { layerIndex = layer, layer = state }); });
+                mediaAudio.OnEnd(() => { Debug.LogWarning("onMediaEnd"); NWCoreBase.hub.Publish(NWCore.instance.nwCoreSettings.wsClient.hubChannel, "onMediaEnd", new { layerIndex = layer, layer = state }); });
                 return mediaAudio;
 
         }
