@@ -161,6 +161,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
             .On("onFileUploaded", (msg) =>
             {
                 GalleryEnqueueImage(msg["path"].ToString());
+                SendAllImages();
             });
     }
 
@@ -307,6 +308,7 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
     {
         goToNextUploadedImage = true;
         EnqueueImage(path);
+        Debug.Log("[GALLERY] GalleryEnqueueImage > " + path);
     }
 
     IEnumerator CoLoadGallery()
