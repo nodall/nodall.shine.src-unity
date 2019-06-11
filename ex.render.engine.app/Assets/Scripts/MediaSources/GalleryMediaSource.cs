@@ -306,9 +306,12 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
 
     public void GalleryEnqueueImage(string path)
     {
-        goToNextUploadedImage = true;
-        EnqueueImage(path);
-        Debug.Log("[GALLERY] GalleryEnqueueImage > " + path);
+        if (allImages.Contains(path) == false)
+        {
+            goToNextUploadedImage = true;
+            EnqueueImage(path);
+            Debug.Log("[GALLERY] GalleryEnqueueImage > " + path);
+        }
     }
 
     IEnumerator CoLoadGallery()
@@ -348,7 +351,18 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
         }
 
         allTextures.Add(tex);
-        allImages.Add(path);
+
+        //bool flag = false;
+        //foreach (var _path in allImages)
+        //{
+        //    if (_path == path)
+        //    {
+        //        flag = true;
+        //    }
+        //}
+        //if(flag==false)
+            allImages.Add(path);
+
         CreateGallery();
 
         if (goToNextUploadedImage)
@@ -404,10 +418,17 @@ public class GalleryMediaSource : TextureComponentBase<ComponentProps>, IGetStat
 
         foreach (var img in allImages)
         {
+            bool flag = false;
             Debug.LogWarning("[GalleryMedia] Sending images: " + img);
             var imgId = img.Replace(AppSettingsScript.Instance.WWWFolder, "/");
 
-            array.Add("http://"+NetworkScript.Instance.GetLocalIp() + ":" + wwwPort + imgId);
+            foreach(var photo in array)
+            {
+                if (("http://" + NetworkScript.Instance.GetLocalIp() + ":" + wwwPort + imgId) == (photo).ToString())
+                    flag = true;
+            }
+            if(flag==false)
+                array.Add("http://"+NetworkScript.Instance.GetLocalIp() + ":" + wwwPort + imgId);
         }
 
         data.Add("list", array);
